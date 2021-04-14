@@ -2,7 +2,7 @@
 #	EnergyScope TD is an open-source energy model suitable for country scale analysis. It is a simplified representation of an urban or national energy system accounting for the energy flows												
 #	within its boundaries. Based on a hourly resolution, it optimises the design and operation of the energy system while minimizing the cost of the system.												
 #													
-#	Copyright (C) <2018-2019> <Ecole Polytechnique FÃ©dÃ©rale de Lausanne (EPFL), Switzerland and UniversitÃ© catholique de Louvain (UCLouvain), Belgium>
+#	Copyright (C) <2018-2019> <Ecole Polytechnique Fédérale de Lausanne (EPFL), Switzerland and Université catholique de Louvain (UCLouvain), Belgium>
 #													
 #	Licensed under the Apache License, Version 2.0 (the "License");												
 #	you may not use this file except in compliance with the License.												
@@ -123,7 +123,8 @@ param power_density_solar_thermal >=0 default 0;# Maximum power irradiance for s
 ##Additional parameter (hard coded as '8760' in the thesis)
 param total_time := sum {t in PERIODS, h in HOUR_OF_PERIOD [t], td in TYPICAL_DAY_OF_PERIOD [t]} (t_op [h, td]); # [h]. added just to simplify equations
 
-
+# New for margin calculation:
+param margin_ratio >=0, default 0.1;# Margin ratio, if = 0.1 <=> 10% of overcapacity at any time
 
 #####################################
 ###   VARIABLES [Tables 2.3-2.4]  ###
@@ -157,6 +158,12 @@ var GWP_constr {TECHNOLOGIES} >= 0; # GWP_constr [ktCO2-eq.]: Total emissions of
 var GWP_op {RESOURCES} >= 0; #  GWP_op [ktCO2-eq.]: Total yearly emissions of the resources [ktCO2-eq./y]
 var Network_losses {END_USES_TYPES, HOURS, TYPICAL_DAYS} >= 0; # Net_loss [GW]: Losses in the networks (normally electricity grid and DHN)
 var Storage_level {STORAGE_TECH, PERIODS} >= 0; # Sto_level [GWh]: Energy stored at each period
+
+# NEW :
+var F_t_margin {RESOURCES union TECHNOLOGIES, HOURS, TYPICAL_DAYS} >= 0; # F_t: Operation in each period [GW] or, for STORAGE_TECH, storage level [GWh]. multiplication factor with respect to the values in layers_in_out table. Takes into account c_p
+var Storage_out_marge {i in STORAGE_TECH, LAYERS, HOURS, TYPICAL_DAYS} >= 0; # Sto_out [GW]: Power output from the storage in a certain period
+
+
 
 #############################################
 ###      CONSTRAINTS Eqs [2.1-2.39]       ###
@@ -407,6 +414,38 @@ subject to max_elec_import {h in HOURS, td in TYPICAL_DAYS}:
 subject to solar_area_limited :
 	F["PV"]/power_density_pv+(F["DEC_SOLAR"]+F["DHN_SOLAR"])/power_density_solar_thermal <= solar_area;
 
+## NEW:
+# Defintiion of margin capacity for flexible units:
+subject to margin_calculation_production {i in TECHNOLOGIES, h in HOURS, td in TYPICAL_DAYS}:
+	F_t_margin [i, h, td] <= F [i] * c_p_t [i, h, td] - F_t [i, h, td];
+		
+# Defintiion of margin capacity for storage units:
+# If (1/2) they have still power:
+subject to margin_calculation_storage_1 {j in STORAGE_TECH, l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:	
+	Storage_out_marge [j, l, h, td] <= (F[j] / storage_discharge_time [j] - Storage_out [j, l, h, td]);
+# And if (2/2) they have still enough energy to deliver this power.
+subject to margin_calculation_storage_2	 {j in STORAGE_TECH, t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}:
+	Storage_level [j, t] = (if t == 1 then
+	 			Storage_level [j, card(PERIODS)] * (1.0 -  storage_losses[j])
+				+ t_op [h, td] * (   (sum {l in LAYERS: storage_eff_in [j,l] > 0}  (Storage_in [j, l, h, td]  * storage_eff_in  [j, l])) 
+				                   - (sum {l in LAYERS: storage_eff_out [j,l] > 0} ((Storage_out [j, l, h, td] + Storage_out_marge [j, l, h, td]) / storage_eff_out [j, l])))
+	else
+	 			Storage_level [j, t-1] * (1.0 -  storage_losses[j])
+				+ t_op [h, td] * (   (sum {l in LAYERS: storage_eff_in [j,l] > 0}  (Storage_in [j, l, h, td]  * storage_eff_in  [j, l])) 
+				                   - (sum {l in LAYERS: storage_eff_out [j,l] > 0} ((Storage_out [j, l, h, td] + Storage_out_marge [j, l, h, td]) / storage_eff_out [j, l])))
+				);	
+
+subject to storage_layer_out_2 {j in STORAGE_TECH, l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
+	Storage_out_marge [j, l, h, td] * (ceil (storage_eff_out [j, l]) - 1) = 0;				
+	
+# Only for electricity (can be extended to all sectors)
+subject to margin_constraint {l in {"ELECTRICITY"}, h in HOURS, td in TYPICAL_DAYS}:
+	sum {i in TECHNOLOGIES diff STORAGE_TECH } 
+		(if layers_in_out[i, l] >= 0 then  layers_in_out[i, l] * F_t_margin [i, h, td] else 0) 
+		+ sum {j in STORAGE_TECH} ( Storage_out_marge [j, l, h, td] )
+	>= margin_ratio * End_uses [l, h, td] 	;
+		
+
 
 ##########################
 ### OBJECTIVE FUNCTION ###
@@ -414,3 +453,5 @@ subject to solar_area_limited :
 
 # Can choose between TotalGWP and TotalCost
 minimize obj: TotalCost;
+
+
