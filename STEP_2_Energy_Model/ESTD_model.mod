@@ -424,8 +424,8 @@ subject to margin_calculation_production {i in TECHNOLOGIES, h in HOURS, td in T
 subject to margin_calculation_storage_1 {j in STORAGE_TECH, l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:	
 	Storage_out_marge [j, l, h, td] <= (F[j] / storage_discharge_time [j] - Storage_out [j, l, h, td]);
 # And if (2/2) they have still enough energy to deliver this power.
-subject to margin_calculation_storage_2	 {j in STORAGE_TECH, t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}:
-	Storage_level [j, t] = (if t == 1 then
+subject to margin_calculation_storage_2	 {j in STORAGE_TECH, t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}: 
+	0 <= (if t == 1 then # <=> the storage level at t should be greater or equal to 0
 	 			Storage_level [j, card(PERIODS)] * (1.0 -  storage_losses[j])
 				+ t_op [h, td] * (   (sum {l in LAYERS: storage_eff_in [j,l] > 0}  (Storage_in [j, l, h, td]  * storage_eff_in  [j, l])) 
 				                   - (sum {l in LAYERS: storage_eff_out [j,l] > 0} ((Storage_out [j, l, h, td] + Storage_out_marge [j, l, h, td]) / storage_eff_out [j, l])))
