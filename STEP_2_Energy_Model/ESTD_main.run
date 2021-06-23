@@ -51,7 +51,7 @@ param PathName symbolic default "output"; #place where outputs are print
 
 		if solve_result = "limit" # To avoid post treatment error
 		then print "TIME OUT"; 
-		else {			
+		else {	
 			################################################################################
 			################################################################################                                                    
 			##																			  ##
@@ -72,55 +72,28 @@ param PathName symbolic default "output"; #place where outputs are print
 				printf "%s\t%.6f\t%.6f\t%.6f\n", i, if i in TECHNOLOGIES then (tau[i] * C_inv[i]) else 0, if i in TECHNOLOGIES then C_maint [i] else 0, if i in RESOURCES then C_op [i] else 0 >> (PathName & "/cost_breakdown.txt");
 			}
 						
+
 			## Print resources breakdown to txt file.
 			print "--------------SAVING RESOURCES -----------";
-			printf "%s\t%s\t%s\n", "Name", "Used", "Potential" > (PathName & "/resources.txt"); 
+			printf "%s\t%s\t%s\n", "Name", "Used", "Potential" > (PathName & "/resources_breakdown.txt"); 
 			for {i in RESOURCES}{
-				printf "%s\t%.6f\t%.6f\n", i, sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t [i, h, td] * t_op [h, td]) , avail [i] >> (PathName & "/resources.txt");
+				printf "%s\t%.6f\t%.6f\n", i, sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t [i, h, td] * t_op [h, td]) , avail [i] >> (PathName & "/resources_breakdown.txt");
 			}
 
 
 			## Print GWP breakdown
 			print "--------------SAVING GWP -----------";
-			printf "%s\t%s\n", "Name", "GWP_op" > (PathName & "/gwp_breakdown.txt"); 
-			for {i in  RESOURCES}{
-				printf "%s\t%.6f\n", i, GWP_op [i] >> (PathName & "/gwp_breakdown.txt");
+			printf "%s\t%s\t%s\n", "Name", "GWP_constr", "GWP_op" > (PathName & "/gwp_breakdown.txt"); 
+			for {i in TECHNOLOGIES union RESOURCES}{
+				printf "%s\t%.6f\t%.6f\n", i, if i in TECHNOLOGIES then GWP_constr [i] / lifetime [i] else 0, if i in RESOURCES then GWP_op [i] else 0 >> (PathName & "/gwp_breakdown.txt");
 			}
+			
 
-
-			## Print Network losses to txt file
-			print "--------------SAVING Network Losses -----------";
-			printf "%s\t%s\n", "End use", "Losses" > (PathName & "/network_losses.txt");
+			## Print losses to txt file
+			print "--------------SAVING Losses -----------";
+			printf "%s\t%s\n", "End use", "Losses" > (PathName & "/losses.txt");
 			for {i in END_USES_TYPES}{
-					printf "%s\t%.3f\n",i,  sum{t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t] }(Network_losses [i,h,td] * t_op [h,td])  >> (PathName & "/network_losses.txt");
-			}
-
-			## Print margin to txt file
-			print "--------------SAVING margins -----------";
-			for {l in {"ELECTRICITY"}}{
-				printf "Td \t Time\t" > (PathName & "/margin.txt"); 
-				for {i in TECHNOLOGIES diff STORAGE_TECH }{
-					printf "%s\t",i >> (PathName & "/margin.txt"); 
-				}
-				for {j in STORAGE_TECH }{
-					printf "%s_marge_out\t",j >> (PathName & "/margin.txt"); 
-				}
-				printf "END_USE\t" >> (PathName & "/margin.txt"); 
-				printf "BALANCE\t" >> (PathName & "/margin.txt"); 
-	
-				for {td in TYPICAL_DAYS, h in HOURS}{
-					printf "\n %d \t %d\t",td,h   >> (PathName & "/margin.txt"); 
-					for {i in TECHNOLOGIES diff STORAGE_TECH}{
-						printf "%f\t",(if layers_in_out[i, l] >= 0 then  layers_in_out[i, l] * F_t_margin [i, h, td] else 0) >> (PathName & "/margin.txt"); 							
-					}
-					for {j in STORAGE_TECH}{
-						printf "%f\t", (Storage_out_marge [j, l, h, td])>> (PathName & "/margin.txt"); 		
-					}
-					printf "%f\t", - margin_ratio * End_uses [l , h, td]  >> (PathName & "/margin.txt"); 
-					printf "%f\t",   sum {i in TECHNOLOGIES diff STORAGE_TECH } (if layers_in_out[i, l] >= 0 then  layers_in_out[i, l] * F_t_margin [i, h, td] else 0) 
-					               + sum {j in STORAGE_TECH} ( Storage_out_marge [j, l, h, td] ) 
-								   - margin_ratio * End_uses [l , h, td] >> (PathName & "/margin.txt"); 		
-				}
+					printf "%s\t%.3f\n",i,  sum{t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t] }(Network_losses [i,h,td] * t_op [h,td])  >> (PathName & "/losses.txt");
 			}
 
 			## Print ASSETS to txt file
@@ -187,7 +160,7 @@ param PathName symbolic default "output"; #place where outputs are print
 					}
 				}
 			}
-
+			
 			# LAYERS FLUXES
 			print "--------------SAVING LAYERS -----------";
 				for {l in LAYERS}{
@@ -231,6 +204,52 @@ param PathName symbolic default "output"; #place where outputs are print
 						}}		
 					}
 					printf "%f\t", -End_uses [l, h, td]  >> (PathName & "/hourly_data/layer_" & l &".txt"); 
+				}
+			}			
+
+			# RESERVE FLUXES
+			print "--------------SAVING RESERVE ELEC -----------";
+				for {l in {"ELECTRICITY"}}{
+				printf "Td \t Time\t" > (PathName & "/hourly_data/layer_reserve_" & l &".txt"); 
+				for {i in RESOURCES union TECHNOLOGIES diff STORAGE_TECH }{
+					printf "%s\t",i >> (PathName & "/hourly_data/layer_reserve_" & l &".txt"); 
+				}
+				for {j in STORAGE_TECH }{
+					printf "%s_Pin\t",j >> (PathName & "/hourly_data/layer_reserve_" & l &".txt"); 
+					printf "%s_Pout\t",j >> (PathName & "/hourly_data/layer_reserve_" & l &".txt"); 
+				}
+				printf "END_USE\t" >> (PathName & "/hourly_data/layer_reserve_" & l &".txt"); 
+	
+				for {td in TYPICAL_DAYS, h in HOURS}{
+					printf "\n %d \t %d\t",td,h   >> (PathName & "/hourly_data/layer_reserve_" & l &".txt"); 
+					for {i in RESOURCES}{
+						if layers_in_out[i, l] = 0 then # Incompatible
+							printf "\t" >> (PathName & "/hourly_data/layer_reserve_" & l &".txt"); 
+						else 	
+							printf "%f\t",(layers_in_out[i, l] * F_t_reserve [i, h, td]) >> (PathName & "/hourly_data/layer_reserve_" & l &".txt"); 								
+					}
+					for {i in TECHNOLOGIES diff STORAGE_TECH}{
+						if layers_in_out[i, l] = 0 then # Incompatible
+							printf "\t" >> (PathName & "/hourly_data/layer_reserve_" & l &".txt"); 
+						else{ 	
+							if F[i] = 0 then #No technology installed
+								printf "\t" >> (PathName & "/hourly_data/layer_reserve_" & l &".txt"); 
+							else {
+								printf "%f\t",(layers_in_out[i, l] * F_t_reserve [i, h, td]) >> (PathName & "/hourly_data/layer_reserve_" & l &".txt"); 
+						}}							
+					}
+					for {j in STORAGE_TECH}{
+						if storage_eff_in[j, l] = 0 then # Incompatible
+							printf "\t\t" >> (PathName & "/hourly_data/layer_reserve_" & l &".txt"); 
+						else { 	
+							if F[j] = 0 then #No storage
+								printf "\t\t" >> (PathName & "/hourly_data/layer_reserve_" & l &".txt"); 
+							else {
+								printf "%f\t",(-Storage_in_reserve [j, l, h, td]) >> (PathName & "/hourly_data/layer_reserve_" & l &".txt"); 
+								printf "%f\t", (Storage_out_reserve [j, l, h, td])>> (PathName & "/hourly_data/layer_reserve_" & l &".txt"); 
+						}}		
+					}
+					printf "%f\t", -End_uses [l, h, td] - end_uses_reserve [l, h, td]  >> (PathName & "/hourly_data/layer_reserve_" & l &".txt"); 
 				}
 			}
 			
