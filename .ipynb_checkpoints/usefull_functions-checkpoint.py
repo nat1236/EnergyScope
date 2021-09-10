@@ -126,11 +126,8 @@ def print_data(data, out_path, gwp_limit):
     share_heat_dhn_max  = 0.37
         
     # Electric vehicles : # km-pass/h/veh. : Gives the equivalence between capacity and number of vehicles.#ev_batt,size [GWh]: Size of batteries per car per technology of EV	
-    EVs = pd.DataFrame({'EVs_BATT':['PHEV_BATT','BEV_BATT'], 'vehicule_capacity':[5.04E+01, 5.04E+01], 'batt_per_car':[4.40, 24.0]}, index=['CAR_PHEV','CAR_BEV']) 
-    a = np.zeros((2,24))
-    a[0,6] = 0.6
-    a[1,6] = 0.6
-    state_of_charge_ev = pd.DataFrame(a, columns=np.arange(1,25), index=['PHEV_BATT','BEV_BATT'])
+    EVs = pd.DataFrame({'EVs_BATT':['PHEV_BATT','BEV_BATT'], 'vehicule_capacity':[5.04E+01, 5.04E+01], 'batt_per_car':[4.40E-06, 2.40E-06]}, index=['CAR_PHEV','CAR_BEV']) 
+    
     # Network
     Loss_network = {'ELECTRICITY' : 4.7E-02,'HEAT_LOW_T_DHN' : 5.0E-02}
     c_grid_extra = 367.8 # cost to reinforce the grid due to intermittent renewable energy penetration. See 2.2.2	
@@ -148,7 +145,6 @@ def print_data(data, out_path, gwp_limit):
     END_USES_INPUT = list(Eud_simple.index)
     END_USES_CATEGORIES = list(End_uses_categories.loc[:,'END_USES_CATEGORIES'].unique())
     RESOURCES = list(Resources_simple.index)
-    RES_IMPORT_CONSTANT = ['DIESEL', 'GASOLINE', 'BIOETHANOL', 'BIODIESEL', 'LFO', 'NG', 'SLF', 'SNG', 'H2']
     BIOFUELS = list(Resources[Resources.loc[:,'Subcategory']=='Biofuels'].index)+['SNG']
     RE_RESOURCES = list(Resources.loc[(Resources['Category']=='Renewable') & (Resources['Subcategory']!='Electro-fuels'),:].index)
     EXPORT = list(Resources.loc[Resources['Category']=='Export',:].index)
@@ -185,7 +181,7 @@ def print_data(data, out_path, gwp_limit):
     # STORAGE_OF_END_USES_TYPES ->  #METHOD 2 (using Storage_eff_in)
     STORAGE_OF_END_USES_TYPES_DHN = [] 
     STORAGE_OF_END_USES_TYPES_DEC = [] 
-    STORAGE_OF_END_USES_TYPES_ELEC = list()
+    STORAGE_OF_END_USES_TYPES_ELEC = []
     STORAGE_OF_END_USES_TYPES_HIGH_T = []
    
     for i in STORAGE_TECH :
@@ -198,8 +194,6 @@ def print_data(data, out_path, gwp_limit):
         elif Storage_eff_in.loc[i,'HEAT_HIGH_T']>0 :
             STORAGE_OF_END_USES_TYPES_HIGH_T.append(i)
             
-    STORAGE_OF_END_USES_TYPES_ELEC.remove('BEV_BATT')
-    STORAGE_OF_END_USES_TYPES_ELEC.remove('PHEV_BATT')
     
     # etc. still TS_OF_DEC_TECH and EVs_BATT_OF_V2G missing... -> hard coded !
     
@@ -218,7 +212,6 @@ def print_data(data, out_path, gwp_limit):
     # creating Batt_per_Car_df for printing
     Batt_per_Car_df = EVs[['batt_per_car']]
     Vehicule_capacity_df = EVs[['vehicule_capacity']]
-    state_of_charge_ev = ampl_syntax(state_of_charge_ev,'')
     Loss_network_df = pd.DataFrame(data=Loss_network.values(), index=Loss_network.keys(), columns=[' '])
     # Putting all the df in ampl syntax
     Batt_per_Car_df = ampl_syntax(Batt_per_Car_df,'# ev_batt,size [GWh]: Size of batteries per car per technology of EV')
@@ -273,8 +266,7 @@ def print_data(data, out_path, gwp_limit):
     print_set(SECTORS,'SECTORS', out_path)
     print_set(END_USES_INPUT,'END_USES_INPUT', out_path)
     print_set(END_USES_CATEGORIES,'END_USES_CATEGORIES', out_path) 
-    print_set(RESOURCES,'RESOURCES', out_path)
-    print_set(RES_IMPORT_CONSTANT,'RES_IMPORT_CONSTANT', out_path) 
+    print_set(RESOURCES,'RESOURCES', out_path) 
     print_set(BIOFUELS,'BIOFUELS', out_path)
     print_set(RE_RESOURCES,'RE_RESOURCES', out_path)
     print_set(EXPORT,'EXPORT', out_path)
@@ -302,7 +294,6 @@ def print_data(data, out_path, gwp_limit):
     print_set(STORAGE_OF_END_USES_TYPES_DHN,'STORAGE_OF_END_USES_TYPES ["HEAT_LOW_T_DHN"]', out_path)
     print_set(STORAGE_OF_END_USES_TYPES_DEC,'STORAGE_OF_END_USES_TYPES ["HEAT_LOW_T_DECEN"]', out_path)
     print_set(STORAGE_OF_END_USES_TYPES_ELEC,'STORAGE_OF_END_USES_TYPES ["ELECTRICITY"]', out_path)
-    print_set(STORAGE_OF_END_USES_TYPES_HIGH_T,'STORAGE_OF_END_USES_TYPES ["HEAT_HIGH_T"]', out_path)
     newline(out_path)
     with open(out_path, mode='a',newline='') as TD_file:
             TD_writer = csv.writer(TD_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
@@ -351,10 +342,6 @@ def print_data(data, out_path, gwp_limit):
     newline(out_path)
     print_df('param:', Vehicule_capacity_df, out_path)
     newline(out_path)
-    print_df('param state_of_charge_ev :', state_of_charge_ev, out_path)
-    newline(out_path)
-
-    
     # printing c_grid_extra and import_capacity 
     print_param('c_grid_extra',c_grid_extra,'cost to reinforce the grid due to intermittent renewable energy penetration. See 2.2.2', out_path)
     print_param('import_capacity',import_capacity,'', out_path)
@@ -572,7 +559,7 @@ def print_TD_data(timeseries, out_path='STEP_2_Energy_Model', step1_out='STEP_1_
         ts.fillna(0, inplace=True)
         
         ts = ampl_syntax(ts,'')
-        print_df(EUD_params[l], ts, out_path)
+        print_df(EUD_params[l]+' :', ts, out_path)
         newline(out_path)
 
     # printing c_p_t param #
@@ -588,7 +575,7 @@ def print_TD_data(timeseries, out_path='STEP_2_Energy_Model', step1_out='STEP_1_
         
         ts = ampl_syntax(ts, '')
         s = '["'+RES_params[l]+'",*,*]:'
-        ts.to_csv(out_path, sep='\t', mode='a', header=True, index=True, index_label=s, quoting=csv.QUOTE_NONE)
+        print_df(s, ts, out_path)
         newline(out_path)
         
     # printing c_p_t part where 1 ts => more then 1 tech        
@@ -599,14 +586,12 @@ def print_TD_data(timeseries, out_path='STEP_2_Energy_Model', step1_out='STEP_1_
             ts = ts*norm[l]/norm_TD[l]
             ts.fillna(0, inplace=True)
             ts = ampl_syntax(ts, '')
-            s = '["'+j+'",*,*]:'
-            ts.to_csv(out_path, sep='\t', mode='a', header=True, index=True, index_label=s, quoting=csv.QUOTE_NONE)
+            print_df('["'+j+'",*,*]:', ts, out_path)
+            newline(out_path)
             
     # printing end_uses_reserve ts
     with open(out_path, mode='a',newline='') as TD_file:
         TD_writer = csv.writer(TD_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
-        TD_writer.writerow([';'])
-        TD_writer.writerow([''])
         TD_writer.writerow(['param end_uses_reserve:='])
         
     ts = all_TD_ts['end_uses_reserve']
@@ -638,8 +623,6 @@ if __name__ == '__main__':
     data = (Eud, Resources, Technologies, \
     End_uses_categories, Layers_in_out, Storage_characteristics, Storage_eff_in, \
     Storage_eff_out, Time_Series)
-        
-        
     print_data(data, out_path, gwp_limit)
     
     # Printing ESD_12TD.dat

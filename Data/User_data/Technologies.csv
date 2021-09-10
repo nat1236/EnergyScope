@@ -117,5 +117,8 @@ Storage;Storage;thermal storage centralised;TS_DHN_SEASONAL;0.54;0.002958333;0;2
 Storage;Storage;thermal storage industries;TS_HIGH_TEMP;28.03;0.3;0;25;1;0;1;0;1.00E+15;To modify at exercise 2.2.4
 Storage;Storage;gas storage;SEASONAL_NG;0.051158;0.001309164;0;50;1;0;1;0;1.00E+15;To modify at exercise 2.2.4
 Storage;Storage;hydrogen storage;SEASONAL_H2;6.19;0.39;0;20;1;0;1;0;1.00E+15;To modify at exercise 2.2.4
+Storage;Storage;gasoline storage;SEASONAL_GASOLINE;0.001;0.00001;0;50;1;0;1;0;1.00E+15;
+Storage;Storage;diesel storage;SEASONAL_DIESEL;0.001;0.00001;0;50;1;0;1;0;1.00E+15;
+Storage;Storage;lfo storage;SEASONAL_LFO;0.001;0.00001;0;50;1;0;1;0;1.00E+15;
 Storage;Storage;CO2 storage;CO2_STORAGE;49.5;0.495;0;30;1;0;1;0;1.00E+15;To modify at exercise 2.2.4
 Storage;Storage;liquid fuels storage;SLF_STO;0.00635;0.000397;0;20;1;0;1;0;1.00E+15;To modify at exercise 2.2.4
