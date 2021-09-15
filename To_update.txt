@@ -1,0 +1,3 @@
+* verify data are up to date
+* correct the print into .run
+* 

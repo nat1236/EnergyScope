@@ -45,8 +45,14 @@ param PathName symbolic default "output"; #place where outputs are print
 
 
 { 
+		print "gwp_limit", gwp_limit;
 
 		solve;
+		
+		print "TotalCost", TotalCost;
+		print "GWP_op", sum {i in RESOURCES} GWP_op [i];
+		
+		display solve_result_num;
 		display _solve_elapsed_time;
 
 		if solve_result = "limit" # To avoid post treatment error
@@ -64,6 +70,13 @@ param PathName symbolic default "output"; #place where outputs are print
 			option show_stats 0; # show statistics
 			option times 0; # show time
 			option gentimes 0; # show time
+			
+			
+			## Print dual value
+			print "--------------SAVING CO2 Cost -----------";
+			printf "%.6f", Minimum_GWP_reduction > (PathName & "/CO2_cost.txt"); 
+			
+			
 
 			## Print cost breakdown to txt file.
 			print "--------------SAVING COSTS -----------";
