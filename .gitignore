@@ -1,0 +1,10 @@
+
+STEP_2_Energy_Model/output/
+
+.idea/
+
+*.pyc
+
+*.log
+
+STEP_2_Energy_Model/ESTD_12TD.dat
