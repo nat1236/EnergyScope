@@ -15,6 +15,9 @@ import os
 
 
 # Useful functions for printing in AMPL syntax #
+def make_dir(path):
+    if not os.path.isdir(path):
+        os.mkdir(path)
 
 def ampl_syntax(df, comment):
     # adds ampl syntax to df

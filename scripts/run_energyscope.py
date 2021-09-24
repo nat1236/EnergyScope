@@ -30,6 +30,7 @@ if __name__ == '__main__':
     # No electricity imports
     config['all_data'][1].loc['ELECTRICITY', 'avail'] = 0
     # Printing and running
+    config['importing'] = False
     config['printing'] = True
     config['printing_td'] = True
     config['run_ES'] = True

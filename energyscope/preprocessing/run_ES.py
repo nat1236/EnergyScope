@@ -1,4 +1,4 @@
-from .usefull_functions import import_data,print_data, print_td_data
+from .usefull_functions import import_data,print_data, print_td_data, make_dir
 import pandas as pd
 import os
 
@@ -13,17 +13,13 @@ def run_ES(config):
     else:
         (Eud, Resources, Technologies, End_uses_categories, Layers_in_out, Storage_characteristics, Storage_eff_in,
          Storage_eff_out, Time_Series) = config['all_data'] 
-    
-    # Data changes
-    Resources.loc['ELECTRICITY', 'avail'] = 0
+
 
     all_df = (Eud, Resources, Technologies, End_uses_categories, Layers_in_out, Storage_characteristics, Storage_eff_in,
               Storage_eff_out, Time_Series)
     
     if config['printing']:
         # Printing ESTD_data.dat
-        
-        
         print_data(all_df, config['ES_path'], config['GWP_limit'])
     
     if config['printing_td']:
@@ -44,6 +40,9 @@ def run_ES(config):
     # run the energy system optimisation model with AMPL
     if config['run_ES']:
         os.chdir(config['ES_path'])
+        make_dir('./output')
+        make_dir('./output/hourly_data')
+        make_dir('./output/sankey')
         os.system('cmd /c "ampl ESTD_main.run"')
         os.chdir(config['Working_directory'])
 

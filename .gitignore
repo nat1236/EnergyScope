@@ -8,3 +8,7 @@ STEP_2_Energy_Model/output/
 *.log
 
 STEP_2_Energy_Model/ESTD_12TD.dat
+
+energyscope.egg-info/
+
+STEP_2_Energy_Model/ESTD_data.dat
