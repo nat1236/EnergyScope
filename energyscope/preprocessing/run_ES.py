@@ -45,6 +45,6 @@ def run_ES(config):
     if config['run_ES']:
         os.chdir(config['ES_path'])
         os.system('cmd /c "ampl ESTD_main.run"')
-        os.chdir('..')
+        os.chdir(config['Working_directory'])
 
     return all_df

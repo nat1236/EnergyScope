@@ -22,7 +22,8 @@ if __name__ == '__main__':
               'data_folders':  ['..\\Data\\User_data', '..\\Data\\Developer_data'],
               'ES_path': '..\\STEP_2_Energy_Model',
               'step1_output': '..\\STEP_1_TD_selection\\TD_of_days.out',
-              'all_data': pd.DataFrame()}
+              'all_data': pd.DataFrame(),
+              'Working_directory': os.getcwd()}
 
    # Reading the data
     config['all_data'] = es.run_ES(config)
@@ -32,10 +33,9 @@ if __name__ == '__main__':
     config['printing'] = True
     config['printing_td'] = True
     config['run_ES'] = True
-    config['all_data']  = es.run_ES(config)
+    config['all_data'] = es.run_ES(config)
 
-
-
+    # config['data_folders'] = ['..\\Data\\User_data', '..\\Data\\Developer_data']
     # compute the actual average annual emission factors for each resource
     GWP_op = es.compute_gwp_op(config['data_folders'], config['ES_path'])
     GWP_op.to_csv('..\\STEP_2_Energy_Model\output\GWP_op.txt', sep='\t')
