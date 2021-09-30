@@ -21,6 +21,7 @@ if __name__ == '__main__':
               'GWP_limit': 70000,  # [ktCO2-eq./year]	# Minimum GWP reduction
               'data_folders':  ['..\\Data\\User_data', '..\\Data\\Developer_data'],
               'ES_path': '..\\STEP_2_Energy_Model',
+              'ES_output_dir': '..\\STEP_2_Energy_Model\output',
               'step1_output': '..\\STEP_1_TD_selection\\TD_of_days.out',
               'all_data': pd.DataFrame(),
               'Working_directory': os.getcwd()}

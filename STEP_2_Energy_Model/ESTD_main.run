@@ -7,12 +7,12 @@
 ################################################################################
 
 # Load standard model
-model ESTD_model.mod;
+model ../ESTD_model.mod;
 
 
 # Load standard data
-data ESTD_data.dat    # not TDs depending data
-data ESTD_12TD.dat; # TDs depending data
+data ../ESTD_data.dat    # not TDs depending data
+data ../ESTD_12TD.dat; # TDs depending data
 
 ################################################################################
 ################################################################################                                                    
@@ -26,7 +26,8 @@ option solver cplex;
 option show_stats 1; # show statistics
 option cplex_options  'mipdisplay 5 mipinterval 1000'; 
 option cplex_options $cplex_options 'baropt predual=-1';
-option log_file 'output/log.txt';   #write the log in a .txt file. Create the file before running.
+option cplex_options $cplex_options 'display=2';
+option log_file './log.txt';   #write the log in a .txt file. Create the file before running.
 option cplex_options $cplex_options 'mipgap 0.01 '; 
 option cplex_options $cplex_options 'timelimit 3600 '; 
 
@@ -40,7 +41,7 @@ option cplex_options $cplex_options 'timelimit 3600 ';
 ################################################################################
 
 
-param PathName symbolic default "output"; #place where outputs are print
+param PathName symbolic default "."; #place where outputs are print
 
 
 
@@ -52,6 +53,7 @@ param PathName symbolic default "output"; #place where outputs are print
 		print "TotalCost", TotalCost;
 		print "GWP_op", sum {i in RESOURCES} GWP_op [i];
 		
+		display solve_result;
 		display solve_result_num;
 		display _solve_elapsed_time;
 

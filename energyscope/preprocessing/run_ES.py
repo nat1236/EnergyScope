@@ -39,11 +39,12 @@ def run_ES(config):
     
     # run the energy system optimisation model with AMPL
     if config['run_ES']:
-        os.chdir(config['ES_path'])
-        make_dir('./output')
-        make_dir('./output/hourly_data')
-        make_dir('./output/sankey')
-        os.system('cmd /c "ampl ESTD_main.run"')
+        #os.chdir(config['ES_path'])
+        make_dir(config['ES_output_dir'])
+        make_dir(config['ES_output_dir']+'/hourly_data')
+        make_dir(config['ES_output_dir']+'/sankey')
+        os.chdir(config['ES_output_dir'])
+        os.system('cmd /c "ampl ../ESTD_main.run"')
         os.chdir(config['Working_directory'])
 
     return all_df
