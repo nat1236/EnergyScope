@@ -12,7 +12,7 @@ model ../ESTD_model.mod;
 
 # Load standard data
 data ../ESTD_data.dat    # not TDs depending data
-data ../ESTD_12TD.dat; # TDs depending data
+data ../ESTD_12TD.dat;   # TDs depending data
 
 ################################################################################
 ################################################################################                                                    
@@ -23,13 +23,14 @@ data ../ESTD_12TD.dat; # TDs depending data
 ################################################################################
 
 option solver cplex;
-option show_stats 1; # show statistics
-option cplex_options  'mipdisplay 5 mipinterval 1000'; 
-option cplex_options $cplex_options 'baropt predual=-1';
+option show_stats 3; # show statistics
+option cplex_options  'mipdisplay 5 mipinterval 10';
+option cplex_options $cplex_options 'baropt predual=-1 bardisplay=1 scale=1';
 option cplex_options $cplex_options 'display=2';
 option log_file './log.txt';   #write the log in a .txt file. Create the file before running.
-option cplex_options $cplex_options 'mipgap 0.01 '; 
-option cplex_options $cplex_options 'timelimit 3600 '; 
+option cplex_options $cplex_options 'mipgap 0.01';
+option cplex_options $cplex_options 'timelimit 3600';
+option presolve 200;
 
 
 ################################################################################
