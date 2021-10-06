@@ -81,12 +81,19 @@ def import_data(import_folders):
     resources.dropna(axis=0, how='any', inplace=True)
     technologies.drop(columns=['Comment'], inplace=True)
     technologies.dropna(axis=0, how='any', inplace=True)
+    # cleaning indices and columns
+    all_df = {'Demand': eud, 'Resources': resources, 'Technologies': technologies,
+              'End_uses_categories': end_uses_categories, 'Layers_in_out': layers_in_out,
+              'Storage_characteristics': storage_characteristics, 'Storage_eff_in': storage_eff_in,
+              'Storage_eff_out': storage_eff_out, 'Time_series': time_series}
 
-    return {'Demand': eud, 'Resources': resources, 'Technologies': technologies,
-            'End_uses_categories': end_uses_categories, 'Layers_in_out': layers_in_out,
-            'Storage_characteristics': storage_characteristics, 'Storage_eff_in': storage_eff_in,
-            'Storage_eff_out': storage_eff_out, 'Time_series': time_series}
+    for key in all_df:
+        if type(all_df[key].index[0]) == str:
+            all_df[key].index = all_df[key].index.str.strip()
+        if type(all_df[key].columns[0]) == str:
+            all_df[key].columns = all_df[key].columns.str.strip()
 
+    return all_df
 
 # Function to print the ESTD_data.dat file #
 def print_data(config):
