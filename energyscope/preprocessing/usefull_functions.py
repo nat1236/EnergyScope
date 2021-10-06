@@ -102,6 +102,8 @@ def print_data(config):
         out_path = cs + config['case_study'] + '/ESTD_data.dat'
         #config['ES_path'] + '/ESTD_data.dat'
         gwp_limit = config['GWP_limit']
+        import_capacity = config['import_capacity'] # [GW] Maximum power of electrical interconnections
+
 
 
         eud = data['Demand']
@@ -166,7 +168,6 @@ def print_data(config):
         # Network
         loss_network = {'ELECTRICITY': 4.7E-02, 'HEAT_LOW_T_DHN': 5.0E-02}
         c_grid_extra = 367.8  # cost to reinforce the grid due to intermittent renewable energy penetration. See 2.2.2
-        import_capacity = 9.72  # [GW] Maximum power of electrical interconnections
 
         # Storage daily
         STORAGE_DAILY = ['TS_DEC_HP_ELEC', 'TS_DEC_THHP_GAS', 'TS_DEC_COGEN_GAS', 'TS_DEC_COGEN_OIL', 'TS_DEC_ADVCOGEN_GAS',

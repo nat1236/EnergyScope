@@ -18,6 +18,7 @@ if __name__ == '__main__':
               'printing': True, # printing the data in ETSD_data.dat file for the optimisation problem
               'printing_td': True, # printing the time related data in ESTD_12TD.dat for the optimisaiton problem
               'GWP_limit': 150000,  # [ktCO2-eq./year]	# Minimum GWP reduction
+              'import_capacity': 9.72, # [GW] Electrical interconnection with neighbouring countries
               'data_folders':  ['../Data/User_data', '../Data/Developer_data'], # Folders containing the csv data files
               'ES_path': '../energyscope/STEP_2_Energy_Model', # Path to the energy model (.mod and .run files)
               'step1_output': '../energyscope/STEP_1_TD_selection/TD_of_days.out', # OUtput of the step 1 selection of typical days
@@ -30,8 +31,6 @@ if __name__ == '__main__':
     ##TODO Student work: Write the updates in data HERE
     # Example to change data: update wood availability to 23 400 GWh
     config['all_data']['Resources'].loc['WOOD','avail'] = 23400
-
-
 
     # Printing the .dat files for the optimisation problem
     es.print_data(config)
