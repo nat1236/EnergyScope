@@ -676,10 +676,10 @@ def run_ES(config):
     make_dir(cs + config['case_study']+'/output')
     make_dir(cs + config['case_study']+'/output'+ '/hourly_data')
     make_dir(cs + config['case_study']+'/output' + '/sankey')
-    os.chdir(cs + config['case_study']+'/output')
+    os.chdir(cs + config['case_study'])
     # running ES
     logging.info('Running EnergyScope')
-    call('ampl ../ESTD_main.run', shell=True)
+    call(config['AMPL_path']+ '/ampl ESTD_main.run', shell=True)
     os.chdir(config['Working_directory'])
 
     logging.info('End of run')

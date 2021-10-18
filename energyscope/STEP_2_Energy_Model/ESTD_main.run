@@ -7,12 +7,12 @@
 ################################################################################
 
 # Load standard model
-model ../ESTD_model.mod;
+model ESTD_model.mod;
 
 
 # Load standard data
-data ../ESTD_data.dat    # not TDs depending data
-data ../ESTD_12TD.dat; # TDs depending data
+data ESTD_data.dat    # not TDs depending data
+data ESTD_12TD.dat; # TDs depending data
 
 ################################################################################
 ################################################################################                                                    
@@ -44,7 +44,7 @@ option cplex_options $cplex_options 'timelimit 3600 ';
 ################################################################################
 
 
-param PathName symbolic default "."; #place where outputs are print
+param PathName symbolic default "output/"; #place where outputs are print
 
 
 print PathName;
