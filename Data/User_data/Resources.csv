@@ -1,0 +1,26 @@
+Category,Subcategory,parameter name,Availability,Direct and indirect emissions,Price,Direct emissions
+,,units,[GWh/y],[ktCO2-eq./GWh],[Meuro/GWh],[ktCO2-eq./GWh]
+Non-renewable,Other non-renewable,ELECTRICITY,27567.31133932429,0.2064857142857145,0.08433,0.0
+Non-renewable,Fossil fuel,GASOLINE,1000000.0,0.3448,0.08236604430198545,0.25
+Non-renewable,Fossil fuel,DIESEL,1000000.0,0.3148,0.07974378803376807,0.27
+Renewable,Biofuel,BIOETHANOL,1000000.0,0.0,0.2257142857142857,0.25
+Renewable,Biofuel,BIODIESEL,1000000.0,0.0,0.24,0.27
+Non-renewable,Fossil fuel,LFO,1000000.0,0.3115,0.060150579568844106,0.26
+Non-renewable,Fossil fuel,NG,1000000.0,0.2666,0.044253060340158155,0.2
+Non-renewable,Fossil fuel,SNG,1000000.0,0.0,0.19714285714285712,0.2
+Renewable,Biomass,WOOD,23400.0,0.0118,0.032815085885333245,0.39
+Renewable,Biomass,WET_BIOMASS,38900.0,0.0118,0.005757430117336,0.39
+Non-renewable,Fossil fuel,COAL,33354.99944,0.4014,0.017657891886036184,0.36
+Non-renewable,Other non-renewable,URANIUM,1000000.0,0.0039,0.0038764557330677445,0.0
+Non-renewable,Other non-renewable,WASTE,17800.0,0.1501,0.023080857176360436,0.26
+Non-renewable,Other non-renewable,H2,1000000.0,0.0,0.17714285714285716,0.0
+Non-renewable,Fossil fuel,SLF,1000000.0,0.0,0.2114285714285714,0.0
+Export,Export,ELEC_EXPORT,1000000.0,0.0,0.0,0.0
+Export,Export,CO2_EMISSIONS,1000000.0,0.0,0.0,0.0
+Renewable,Non-biomass,RES_WIND,1000000.0,0.0,0.0,0.0
+Renewable,Non-biomass,RES_SOLAR,1000000.0,0.0,0.0,0.0
+Renewable,Non-biomass,RES_HYDRO,1000000.0,0.0,0.0,0.0
+Renewable,Non-biomass,RES_GEO,1000000.0,0.0,0.0,0.0
+Others,Others,CO2_ATM,1000000.0,0.0,0.0,0.0
+Others,Others,CO2_INDUSTRY,0.0,0.0,0.0,0.0
+Others,Others,CO2_CAPTURED,0.0,0.0,0.0,0.0
