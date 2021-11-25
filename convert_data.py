@@ -5,7 +5,7 @@ def generate_demand_csv():
 
     # Demand
     demand = pd.read_excel("Data_management/DATA.xlsx", sheet_name='2.3 EUD', index_col=0, header=1, usecols=range(5))
-    demand.columns = [x.strip(" ") for x in demand.columns]
+    demand.columns = [x.strip() for x in demand.columns]
 
     # Add additional information
     demand_aux = pd.read_csv("Data/User_data/aux_demand.csv", index_col=0)
@@ -25,7 +25,7 @@ def generate_resources_csv():
     # Resources
     resources = pd.read_excel("Data_management/DATA.xlsx", sheet_name='2.1 RESOURCES', index_col=0, header=1,
                               usecols=range(5))
-    resources.index = [x.strip(' ') for x in resources.index]
+    resources.index = [x.strip() for x in resources.index]
     resources.columns = [x.split(" ")[0] for x in resources.columns]
 
     # Add additional information
@@ -52,7 +52,7 @@ def generate_technologies_csv():
     # Technologies
     technologies = pd.read_excel("Data_management/DATA.xlsx", sheet_name='3.2 TECH', index_col=1)
     technologies = technologies.drop(technologies.columns[[0]], axis=1)
-    technologies.index = [x.strip(" ") for x in technologies.index]
+    technologies.index = [x.strip() for x in technologies.index]
 
     # Add additional information
     technologies_aux = pd.read_csv("Data/User_data/aux_technologies.csv", index_col=0)
@@ -81,6 +81,7 @@ def generate_layers_csv():
     # Layers in-out
     layers = pd.read_excel("Data_management/DATA.xlsx", sheet_name='3.1 layers_in_out', index_col=1)
     layers = layers.drop(layers.columns[[0, -1]], axis=1)
+    layers.columns = [x.strip() for x in layers.columns]
     layers.to_csv("Data/Developer_data/Layers_in_out.csv", sep=',')
 
 
@@ -88,17 +89,17 @@ def generate_storage_csv():
 
     # Storage eff in
     storage_eff_in = pd.read_excel("Data_management/DATA.xlsx", sheet_name='3.3 STO', header=2, nrows=21, index_col=0)
-    storage_eff_in.index = [x.strip(' ') for x in storage_eff_in.index]
+    storage_eff_in.index = [x.strip() for x in storage_eff_in.index]
     storage_eff_in.to_csv("Data/Developer_data/Storage_eff_in.csv", sep=',')
 
     # Storage eff out
     storage_eff_out = pd.read_excel("Data_management/DATA.xlsx", sheet_name='3.3 STO', header=26, nrows=21, index_col=0)
-    storage_eff_out.index = [x.strip(' ') for x in storage_eff_out.index]
+    storage_eff_out.index = [x.strip() for x in storage_eff_out.index]
     storage_eff_out.to_csv("Data/Developer_data/Storage_eff_out.csv", sep=',')
 
     # Storage characteristics
     storage_c = pd.read_excel("Data_management/DATA.xlsx", sheet_name='3.3 STO', header=50, nrows=21, index_col=0)
-    storage_c.index = [x.strip(' ') for x in storage_c.index]
+    storage_c.index = [x.strip() for x in storage_c.index]
     storage_c.dropna(axis=1).to_csv("Data/Developer_data/Storage_characteristics.csv", sep=',')
 
 
@@ -106,7 +107,7 @@ def generate_time_series_csv():
 
     # Time series
     time_series = pd.read_excel("Data_management/DATA.xlsx", sheet_name='1.1 Time Series', index_col=0, header=1,
-                                usecols=range(11))
+                                usecols=range(11), nrows=8761)
     time_series = time_series.drop(time_series.columns[0], axis=1)
     time_series = time_series.drop(time_series.index[0])
     time_series.columns = ["Electricity (%_elec)", "Space Heating (%_sh)",
@@ -126,4 +127,4 @@ def estd_excel_to_csv():
 
 
 if __name__ == '__main__':
-    estd_excel_to_csv()
+    generate_time_series_csv()
