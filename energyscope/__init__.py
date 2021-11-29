@@ -65,6 +65,6 @@ except Exception:
 
 
 from .preprocessing.usefull_functions import compute_gwp_op, run_ES, make_dir
-from .preprocessing.print_data import print_data, import_data, print_param, newline, print_df, print_set, ampl_syntax
+from .preprocessing.print_data import import_data, print_param, newline, print_df, print_set, ampl_syntax
 from .postprocessing.utils import get_total_cost, get_total_gwp
 from .postprocessing.draw_sankey.ESSankey import drawSankey

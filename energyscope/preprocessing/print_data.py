@@ -112,7 +112,7 @@ def print_estd(out_path, data, import_capacity, gwp_limit):
     # Pre-processing df #
 
     # pre-processing resources
-    resources_simple = resources.loc[:, ['Availability', 'Direct and indirect emissions', 'Price']]
+    resources_simple = resources.loc[:, ['avail', 'gwp_op', 'c_op', 'einv_op']]
     resources_simple.index.name = 'param :'
     resources_simple = resources_simple.astype('float')
     # pre-processing eud
@@ -147,6 +147,7 @@ def print_estd(out_path, data, import_capacity, gwp_limit):
     share_heat_dhn_min = 0.02
     share_heat_dhn_max = 0.37
 
+    # TODO: creating a bug when AMMONIA, METHANOL, HVC are not considered in the model
     share_ned = pd.DataFrame([0.779, 0.029, 0.192], index=['HVC', 'METHANOL', 'AMMONIA'], columns=['share_ned'])
 
     # Electric vehicles :
@@ -194,8 +195,11 @@ def print_estd(out_path, data, import_capacity, gwp_limit):
     TECHNOLOGIES_OF_END_USES_TYPE = []
     for i in END_USES_TYPES:
         # TODO: why are there some end use types (copied from MECA) which are not in layers_in_out (Gauthier's data) ?
-        if i not in layers_in_out_tech.columns:
-            continue
+        # if i not in layers_in_out_tech.columns:
+        #     continue
+        # TODO: remove
+        # if i == 'LIGHTING':
+        #     continue
         li = list(layers_in_out_tech.loc[layers_in_out_tech.loc[:, i] == 1, :].index)
         TECHNOLOGIES_OF_END_USES_TYPE.append(li)
 
