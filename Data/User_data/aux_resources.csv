@@ -27,6 +27,3 @@ RES_GEO,Renewable,Non-biomass
 CO2_ATM,Others,Others
 CO2_INDUSTRY,Others,Others
 CO2_CAPTURED,Others,Others
-NG,Non-renewable,Fossil fuel
-SNG,Non-renewable,Fossil fuel
-SLF,Non-renewable,Fossil fuel
