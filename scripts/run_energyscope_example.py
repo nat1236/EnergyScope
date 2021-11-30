@@ -10,7 +10,6 @@ import yaml
 import os
 
 import energyscope as es
-from energyscope.preprocessing.print_data import print_12td, print_estd, import_data
 
 
 def load_config(config_fn: str):
@@ -30,13 +29,13 @@ if __name__ == '__main__':
     config = load_config('config.default.yaml')
 
     # Loading data
-    all_data = import_data(config['user_data'], config['developer_data'])
+    all_data = es.import_data(config['user_data'], config['developer_data'])
 
     # Saving data to .dat files
     out_path = f"{config['temp_dir']}/ESTD_data.dat"
-    print_estd(out_path, all_data, config["import_capacity"], config["GWP_limit"])
+    es.print_estd(out_path, all_data, config["import_capacity"], config["GWP_limit"])
     out_path = f"{config['temp_dir']}/ESTD_12TD.dat"
-    print_12td(out_path, all_data['Time_series'], config["step1_output"])
+    es.print_12td(out_path, all_data['Time_series'], config["step1_output"])
 
     # Running EnergyScope
     cs = f"{config['case_studies_dir']}/{config['case_study_name']}"

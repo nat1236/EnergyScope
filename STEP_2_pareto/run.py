@@ -9,8 +9,7 @@ This script modifies the input data and runs the EnergyScope model
 import yaml
 import os
 
-import energyscope.energyscope as es
-from energyscope.preprocessing.print_data import print_12td, print_estd, newline, print_param, import_data
+import energyscope as es
 
 
 def load_config(config_fn: str):
@@ -37,9 +36,9 @@ if __name__ == '__main__':
 
         # Saving .dat files
         out_path = f"{config['temp_dir']}/ESTD_data.dat"
-        print_estd(out_path, all_data, config["import_capacity"], config["GWP_limit"])
+        es.print_estd(out_path, all_data, config["import_capacity"], config["GWP_limit"])
         out_path = f"{config['temp_dir']}/ESTD_12TD.dat"
-        print_12td(out_path, all_data['Time_series'], config["step1_output"])
+        es.print_12td(out_path, all_data['Time_series'], config["step1_output"])
 
         # Running EnergyScope
         cs = f"{config['case_studies_dir']}/{config['case_study_name']}"
@@ -54,7 +53,7 @@ if __name__ == '__main__':
         # Optimal solution in terms of EINV
         # Printing the .dat files for the optimisation problem
         out_path = f"{config['temp_dir']}/ESTD_data.dat"
-        print_estd(out_path, all_data, config["import_capacity"], config["GWP_limit"])
+        es.print_estd(out_path, all_data, config["import_capacity"], config["GWP_limit"])
 
         # Run the model
         cs = f"{config['case_studies_dir']}/{config['case_study_name']}_einv/"
@@ -76,12 +75,12 @@ if __name__ == '__main__':
 
         # Printing the .dat files for the optimisation problem
         out_path = f"{config['temp_dir']}/ESTD_data_epsilon.dat"
-        print_estd(out_path, all_data, config["import_capacity"], config["GWP_limit"])
+        es.print_estd(out_path, all_data, config["import_capacity"], config["GWP_limit"])
         # Add specific elements
-        newline(out_path)
-        print_param("TOTAL_COST_OP", cost, "Optimal cost of the system", out_path)
-        newline(out_path)
-        print_param("EPSILON", epsilon, "Epsilon value", out_path)
+        es.newline(out_path)
+        es.print_param("TOTAL_COST_OP", cost, "Optimal cost of the system", out_path)
+        es.newline(out_path)
+        es.print_param("EPSILON", epsilon, "Epsilon value", out_path)
 
         # newline(out_path)
         # technologies_to_minimize = ["WIND_ONSHORE", "WIND_OFFSHORE"]

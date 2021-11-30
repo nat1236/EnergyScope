@@ -66,6 +66,7 @@ except Exception:
 
 from .energyscope import run_energyscope
 from .misc.utils import make_dir
-from .preprocessing.print_data import import_data, print_param, newline, print_df, print_set, ampl_syntax
+from .preprocessing.print_data import import_data, print_param, newline, print_df, print_set, ampl_syntax, \
+    print_estd, print_12td
 from .postprocessing.utils import get_total_cost, get_total_gwp
 from .postprocessing.draw_sankey.ESSankey import drawSankey
