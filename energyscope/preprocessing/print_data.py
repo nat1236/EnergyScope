@@ -12,8 +12,6 @@ import numpy as np
 import pandas as pd
 import csv
 
-from energyscope.preprocessing.usefull_functions import make_dir
-
 
 def ampl_syntax(df, comment):
     # adds ampl syntax to df
@@ -53,24 +51,35 @@ def print_param(name, param, comment, out_path):
 
 
 # Function to import the data from the CSV data files #
-def import_data(import_folders):
+def import_data(user_data_dir, developer_data_dir):
+    """
+    Dictionary with the dataframes containing all the data in the form :
+    {'Demand': eud, 'Resources': resources, 'Technologies': technologies,
+     'End_uses_categories': end_uses_categories, 'Layers_in_out': layers_in_out,
+     'Storage_characteristics': storage_characteristics,
+     'Storage_eff_in': storage_eff_in, 'Storage_eff_out': storage_eff_out, 'Time_series': time_series}
 
+
+    :param user_data_dir:
+    :param developer_data_dir:
+    :return:
+    """
     logging.info('Importing data files')
     # Reading CSV #
     # Reading User CSV to build dataframes
-    eud = pd.read_csv(f"{import_folders[0]}/Demand.csv", index_col=2)
-    resources = pd.read_csv(f"{import_folders[0]}/Resources.csv", index_col=2)
+    eud = pd.read_csv(f"{user_data_dir}/Demand.csv", index_col=2)
+    resources = pd.read_csv(f"{user_data_dir}/Resources.csv", index_col=2)
     resources = resources.drop(index='units')
-    technologies = pd.read_csv(f"{import_folders[0]}/Technologies.csv", index_col=3)
+    technologies = pd.read_csv(f"{user_data_dir}/Technologies.csv", index_col=3)
     technologies = technologies.drop(index='Name (in model and documents)')
 
     # Reading Developer CSV to build dataframes
-    end_uses_categories = pd.read_csv(f"{import_folders[1]}/End_uses_categories.csv")
-    layers_in_out = pd.read_csv(f"{import_folders[1]}/Layers_in_out.csv", index_col=0)
-    storage_characteristics = pd.read_csv(f"{import_folders[1]}/Storage_characteristics.csv", index_col=0)
-    storage_eff_in = pd.read_csv(f"{import_folders[1]}/Storage_eff_in.csv", index_col=0)
-    storage_eff_out = pd.read_csv(f"{import_folders[1]}/Storage_eff_out.csv", index_col=0)
-    time_series = pd.read_csv(f"{import_folders[1]}/Time_series.csv", index_col=0)
+    end_uses_categories = pd.read_csv(f"{developer_data_dir}/End_uses_categories.csv")
+    layers_in_out = pd.read_csv(f"{developer_data_dir}/Layers_in_out.csv", index_col=0)
+    storage_characteristics = pd.read_csv(f"{developer_data_dir}/Storage_characteristics.csv", index_col=0)
+    storage_eff_in = pd.read_csv(f"{developer_data_dir}/Storage_eff_in.csv", index_col=0)
+    storage_eff_out = pd.read_csv(f"{developer_data_dir}/Storage_eff_out.csv", index_col=0)
+    time_series = pd.read_csv(f"{developer_data_dir}/Time_series.csv", index_col=0)
 
     # Pre-processing #
     all_df = {'Demand': eud, 'Resources': resources, 'Technologies': technologies,
