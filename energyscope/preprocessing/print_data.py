@@ -53,18 +53,17 @@ def print_param(name, param, comment, out_path):
 
 
 # Function to import the data from the CSV data files #
-def import_data(user_data_dir, developer_data_dir):
+def import_data(user_data_dir:str, developer_data_dir:str):
     """
-    Dictionary with the dataframes containing all the data in the form :
+    Dictionary with the DataFrames containing all the data in the form :
     {'Demand': eud, 'Resources': resources, 'Technologies': technologies,
      'End_uses_categories': end_uses_categories, 'Layers_in_out': layers_in_out,
      'Storage_characteristics': storage_characteristics,
      'Storage_eff_in': storage_eff_in, 'Storage_eff_out': storage_eff_out, 'Time_series': time_series}
 
-
-    :param user_data_dir:
-    :param developer_data_dir:
-    :return:
+    :param user_data_dir: path to the user data directory.
+    :param developer_data_dir: path to the developer data directory.
+    :return: the data into a dict composed of DataFrames.
     """
     logging.info('Importing data files')
     # Reading CSV #
@@ -99,17 +98,16 @@ def import_data(user_data_dir, developer_data_dir):
 
 
 # Function to print the ESTD_data.dat file
-def print_estd(out_path, data, import_capacity, gwp_limit):
+def print_estd(out_path:str, data:dict, import_capacity:float, gwp_limit:float):
+    """
+    Prints the data into .dat file (out_path) with the right syntax for AMPL.
+    :param out_path: path to the directory to save the .dat file
+    :param data: dict composed of DataFrames with the data to export.
+    :param import_capacity: [GW] Maximum power of electrical interconnections
+    :param gwp_limit: [ktCO2-eq./year] Global Warming Potential (GWP) limit .
+    """
 
     logging.info('Printing ESTD_data.dat')
-
-    # Prints the data into .dat file (out_path) with the right syntax for AMPL
-    # out_path = f"{config['temp_dir']}/ESTD_data.dat"
-    # config['ES_path'] + '/ESTD_data.dat'
-    # gwp_limit = config['GWP_limit']
-    # import_capacity = config['import_capacity']  # [GW] Maximum power of electrical interconnections
-
-    # data = config['all_data']
 
     eud = data['Demand']
     resources = data['Resources']
@@ -429,18 +427,16 @@ def print_estd(out_path, data, import_capacity, gwp_limit):
 
 
 # Function to print the ESTD_12TD.dat file from timeseries and STEP1 results #
-# def print_td_data(timeseries, out_path='STEP_2_Energy_Model', step1_out='STEP_1_TD_selection/TD_of_days.out',
-#                   nbr_td=12):
-def print_12td(out_path, time_series, step1_output_path, nbr_td=12):
-
-    # out_path = f"{config['temp_dir']}/ESTD_12TD.dat"
-    # step1_out = config['step1_output']
-    # nbr_td = 12  # TODO add that as an argument
+def print_12td(out_path:str, time_series:pd.DataFrame, step1_output_path:str, nbr_td=12):
+    """
+    Create the ESTD_12TD.dat file from timeseries and STEP1 results.
+    :param out_path: path to the directory to create the .dat file.
+    :param time_series: pd.DataFrame with the timeseries of interest (PV, Solar, Wind, ...).
+    :param step1_output_path: path to the output of STEP1 (typical days selected).
+    :param nbr_td: number of typical days.
+    """
 
     logging.info('Printing ESTD_' + str(nbr_td) + 'TD.dat')
-
-    # data = config['all_data']
-    # time_series = data['Time_series']
 
     # DICTIONARIES TO TRANSLATE NAMES INTO AMPL SYNTAX #
     # for EUD timeseries

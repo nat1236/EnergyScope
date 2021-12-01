@@ -16,7 +16,14 @@ from energyscope.misc.utils import make_dir
 
 # TODO comment
 # Function to run ES from python
-def run_energyscope(case_study_dir, run_file_name, ampl_path, temp_dir):
+def run_energyscope(case_study_dir:str, run_file_name:str, ampl_path:str, temp_dir:str):
+    """
+    Run ES using Python.
+    :param case_study_dir: path to the case study directory.
+    :param run_file_name: path and name of the .run file.
+    :param ampl_path: ampl path to execute the .run file.
+    :param temp_dir: directory to copy the results.
+    """
 
     make_dir(f"{temp_dir}/output")
     make_dir(f"{temp_dir}/output/hourly_data")
