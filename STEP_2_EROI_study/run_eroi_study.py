@@ -100,3 +100,6 @@ if __name__ == '__main__':
         einv_temp = get_total_einv(cs) / 1000  # TWh
         eroi_temp = total_demand / einv_temp
         print('EROI %.2f GWP op MtC02eq %.2f' % (eroi_temp, gwp_limit))
+        eroi_list.append(eroi_temp)
+
+    # TODO: plot with EROI vs GWP and save plot
