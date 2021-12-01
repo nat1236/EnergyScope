@@ -29,7 +29,7 @@ if __name__ == '__main__':
     config = load_config('config.yaml')
 
     # config['all_data'] = es.import_data(config['data_folders'])
-    all_data = import_data(config['user_data'], config['developer_data'])
+    all_data = es.import_data(config['user_data'], config['developer_data'])
 
     # Optimal solution
     if not os.path.isdir(f"{config['case_studies_dir']}/{config['case_study_name']}"):

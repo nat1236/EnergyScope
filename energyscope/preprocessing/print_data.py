@@ -7,6 +7,8 @@ Contains functions to read data in csv files and print it with AMPL syntax in ES
 @author: Paolo Thiran, Antoine Dubois
 """
 import logging
+from pathlib import Path
+import os
 
 import numpy as np
 import pandas as pd
@@ -156,7 +158,6 @@ def print_estd(out_path, data, import_capacity, gwp_limit):
     share_heat_dhn_min = 0.02
     share_heat_dhn_max = 0.37
 
-    # TODO: creating a bug when AMMONIA, METHANOL, HVC are not considered in the model
     share_ned = pd.DataFrame([0.779, 0.029, 0.192], index=['HVC', 'METHANOL', 'AMMONIA'], columns=['share_ned'])
 
     # Electric vehicles :
@@ -203,12 +204,6 @@ def print_estd(out_path, data, import_capacity, gwp_limit):
     layers_in_out_tech = layers_in_out.loc[~layers_in_out.index.isin(RESOURCES), :]
     TECHNOLOGIES_OF_END_USES_TYPE = []
     for i in END_USES_TYPES:
-        # TODO: why are there some end use types (copied from MECA) which are not in layers_in_out (Gauthier's data) ?
-        # if i not in layers_in_out_tech.columns:
-        #     continue
-        # TODO: remove
-        # if i == 'LIGHTING':
-        #     continue
         li = list(layers_in_out_tech.loc[layers_in_out_tech.loc[:, i] == 1, :].index)
         TECHNOLOGIES_OF_END_USES_TYPE.append(li)
 
@@ -277,10 +272,9 @@ def print_estd(out_path, data, import_capacity, gwp_limit):
     storage_characteristics = ampl_syntax(storage_characteristics, '')
     loss_network_df = ampl_syntax(loss_network_df, '')
 
-    # TODO: cleaner like that no ?
     # Printing data #
     # printing signature of data file
-    header_fn = "/home/duboisa1/Global_Grid/code/EnergyScope/energyscope/preprocessing/header_estd.txt"
+    header_fn = os.path.join(Path(__file__).parents[0], 'header_estd.txt')
     with open(out_path, mode='w', newline='') as file, open(header_fn, 'r') as header:
         for line in header:
             file.write(line)
@@ -530,7 +524,7 @@ def print_12td(out_path, time_series, step1_output_path, nbr_td=12):
 
     # PRINTING #
     # printing description of file
-    header_fn = "/home/duboisa1/Global_Grid/code/EnergyScope/energyscope/preprocessing/header_12td.txt"
+    header_fn = os.path.join(Path(__file__).parents[0], 'header_12td.txt')
     with open(out_path, mode='w', newline='') as td_file, open(header_fn, 'r') as header:
         for line in header:
             td_file.write(line)
