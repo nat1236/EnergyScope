@@ -74,8 +74,6 @@ if __name__ == '__main__':
     # Print the master.run file
     print_master_run_file(config=config)
     print_main_run_file(config=config)
-    # TODO: function to print the master.run, main.run and additional .run files -> name and path od the .dat files, .mod files.
-
 
     # Running EnergyScope
     cs = f"{config['case_studies_dir']}/{config['case_study_name']}"
@@ -86,6 +84,7 @@ if __name__ == '__main__':
     output_dir = f"{config['case_studies_dir']}/{config['case_study_name']}/output/"
     es.drawSankey(path=f"{output_dir}/sankey")
 
+    # TODO: check if it is ok to use the GWP_op as limit
     # Get the GWP op
     gwp = pd.read_csv(f"{cs}/output/gwp_breakdown.txt", index_col=0, sep='\t')
     gwp_op_tot = gwp.sum()['GWP_op']
