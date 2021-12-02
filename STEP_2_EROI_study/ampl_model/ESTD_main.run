@@ -8,14 +8,13 @@
 
 option solver cplex;
 
-
 option show_stats 1; # show statistics
 
 option cplex_options  'mipdisplay 5 mipinterval 1000'; 
 option log_file 'log.txt';   #write the log in a .txt file. Create the file before running.
 
 # option cplex_options $cplex_options 'startbasis ./output/solution.bas '; # to read previously existing path
- option cplex_options $cplex_options 'endbasis ./output/solution.bas '; # to write how to solve
+option cplex_options $cplex_options 'endbasis ./output/solution.bas '; # to write how to solve
 
 # Saving and starting from last solution. Starting from last solution is not very efficient.
 # option cplex_options $cplex_options 'startsol ./output/solution.sol '; # to read previously existing file
@@ -39,9 +38,7 @@ populate=1 poolintensity=4 poolreplace=2";
 ################################################################################
 ################################################################################
 
-
-param PathName symbolic default "../temp/output/";
-
+# param PathName symbolic default "../temp/output/";
 
 let f_min["PV"] := 3.846;
 let f_min["WIND_ONSHORE"] := 1.177;
@@ -53,7 +50,7 @@ let gwp_limit := Infinity;
 let cost_limit := Infinity;
 let einv_limit := Infinity;
 
-print PathName;
+# print PathName;
 
 option times 1; # show time
 option gentimes 1; # show time

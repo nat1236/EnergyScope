@@ -28,6 +28,7 @@ def load_config(config_fn: str):
     # Extend path
     for param in ['case_studies_dir', 'user_data', 'developer_data', 'temp_dir', 'ES_path', 'step1_output']:
         cfg[param] = os.path.join(cfg['energyscope_dir'], cfg[param])
+
     return cfg
 
 
@@ -56,9 +57,12 @@ if __name__ == '__main__':
         print('WARNING: the STEP1 that consists of generating the 12 typical days must be conducted before to compute the TD_of_days.out file located in %s' %(config["step1_output"]))
     es.print_12td(out_path=out_path, time_series=all_data['Time_series'], step1_output_path=config["step1_output"])
 
+    # TODO: function to print the master.run, main.run and additional .run files -> name and path od the .dat files, .mod files.
+
+
     # Running EnergyScope
     cs = f"{config['case_studies_dir']}/{config['case_study_name']}"
-    run_fn = f"{config['ES_path']}/eroi.run"
+    run_fn = f"{config['ES_path']}/master.run"
     es.run_energyscope(cs, run_fn, config['AMPL_path'], config['temp_dir'])
 
     # Example to print the sankey from this script
@@ -89,7 +93,7 @@ if __name__ == '__main__':
 
         # Running EnergyScope
         cs = f"{config['case_studies_dir']}/{cs_name}"
-        run_fn = f"{config['ES_path']}/eroi.run"
+        run_fn = f"{config['ES_path']}/master.run"
         es.run_energyscope(cs, run_fn, config['AMPL_path'], config['temp_dir'])
 
         # Example to print the sankey from this script
