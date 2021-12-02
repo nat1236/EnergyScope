@@ -32,7 +32,7 @@ def load_config(config_fn: str):
         cfg['AMPL_path'] = '/home/jdumas/PycharmProjects/ampl_linux-intel64/ampl'
     else:
         cfg['energyscope_dir'] = '/Users/dumas/PycharmProjects/EnergyScope/'
-        cfg['AMPL_path'] = '/Users/dumas/PycharmProjects/ampl_linux-intel64/ampl'
+        cfg['AMPL_path'] = '/Users/dumas/PycharmProjects/ampl_macos64/ampl'
 
     # Extend path
     for param in ['case_studies_dir', 'user_data', 'developer_data', 'temp_dir', 'ES_path', 'step1_output']:
