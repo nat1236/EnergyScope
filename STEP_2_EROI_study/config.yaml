@@ -1,6 +1,3 @@
-# Main directory
-energyscope_dir: '/Users/dumas/PycharmProjects/EnergyScope/'
-
 # Path from main directory to energyscope sub-directories and files
 # Case studies directory and name of case study
 case_studies_dir: 'case_studies'
@@ -14,9 +11,6 @@ temp_dir: 'temp'
 ES_path: 'STEP_2_EROI_study/ampl_model'
 # Output of the step 1 selection of typical days
 step1_output: 'STEP_1_TD_selection/TD_of_days.out'
-
-# PATH to AMPL licence (to adapt by the user)
-AMPL_path: '/Users/dumas/PycharmProjects/ampl_macos64/ampl'
 
 # Printing
 # printing the data in ETSD_data.dat file for the optimisation problem
