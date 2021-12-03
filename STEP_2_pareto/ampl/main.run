@@ -40,8 +40,7 @@ populate=1 poolintensity=4 poolreplace=2";
 
 param PathName symbolic default "../temp/output";
 
-print 'youhou';
-
+# TODO: where should these actually be added --> to print_data ?
 let f_min["PV"] := 3.846;
 let f_min["WIND_ONSHORE"] := 1.177;
 let f_min["WIND_OFFSHORE"] := 0.692;

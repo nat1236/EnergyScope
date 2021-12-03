@@ -4,7 +4,7 @@ energyscope_dir: '/home/duboisa1/Global_Grid/code/EnergyScope'
 # Path from main directory to energyscope sub-directories and files
 # Case studies directory and name of case study
 case_studies_dir: 'case_studies/pareto'
-case_study_name: 'run3'
+case_study_name: 'run_test'
 # Folders containing the csv data files
 user_data: 'Data/User_data'
 developer_data: 'Data/Developer_data'
@@ -29,3 +29,10 @@ printing_td: True
 GWP_limit: 1e+7
 # [GW] Electrical interconnections with neighbouring countries
 import_capacity: 9.72
+
+# Run options
+options:
+  solver: "/home/duboisa1/ampl_linux-intel64/cplex"
+  show_stats: 1
+  log_file: "log.txt"
+  cplex_options: ["mipdisplay 5", "mipinterval 1000", "mipgap 0.01", "timelimit 3600"]

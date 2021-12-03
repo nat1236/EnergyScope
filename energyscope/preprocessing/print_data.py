@@ -346,6 +346,17 @@ def print_estd(out_path:str, data:dict, import_capacity:float, gwp_limit:float):
         writer.writerow(['## PARAMETERS presented in Table 2.	'])
     # printing i_rate, re_share_primary,gwp_limit,solar_area
     print_param('i_rate', i_rate, 'part [2.7.4]', out_path)
+    # TODO: need to pass a dict of parameters for which we want to set the value dynamically
+    # expl:
+    #               'let f_min["PV"] := 3.846;',
+    #               'let f_min["WIND_ONSHORE"] := 1.177;',
+    #               'let f_min["WIND_OFFSHORE"] := 0.692;',
+    #               'let f_min["HYDRO_RIVER"] := 0.11;',
+    #               'let re_share_primary := 0.0;',
+    #               ' ',
+    #               'let gwp_limit := Infinity;',
+    #               'let cost_limit := Infinity;',
+    #               'let einv_limit := Infinity;',
     print_param('re_share_primary', re_share_primary, 'Minimum RE share in primary consumption', out_path)
     print_param('gwp_limit', gwp_limit, 'gwp_limit [ktCO2-eq./year]: maximum GWP emissions', out_path)
     print_param('solar_area', solar_area, '', out_path)
