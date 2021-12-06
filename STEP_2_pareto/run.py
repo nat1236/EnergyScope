@@ -32,22 +32,28 @@ if __name__ == '__main__':
     all_data = es.import_data(config['user_data'], config['developer_data'])
 
     # Optimal solution
-    if not os.path.isdir(f"{config['case_studies_dir']}/{config['case_study_name']}"):
+    if 1: # not os.path.isdir(f"{config['case_studies_dir']}/{config['case_study_name']}"):
 
         # Saving .dat files
-        out_path = f"{config['temp_dir']}/ESTD_data.dat"
-        es.print_estd(out_path, all_data, config["import_capacity"], config["GWP_limit"])
-        out_path = f"{config['temp_dir']}/ESTD_12TD.dat"
-        es.print_12td(out_path, all_data['Time_series'], config["step1_output"])
+        estd_out_path = f"{config['temp_dir']}/ESTD_data.dat"
+        es.print_estd(estd_out_path, all_data, config["import_capacity"], config["GWP_limit"])
+        td12_out_path = f"{config['temp_dir']}/ESTD_12TD.dat"
+        es.print_12td(td12_out_path, all_data['Time_series'], config["step1_output"])
+
+        # Print run file
+        run_fn = f"{config['ES_path']}/test.run"
+        mod_fns = [f"{config['ES_path']}/main.mod", f"{config['ES_path']}/optimal_cost.mod"]
+        es.print_run(run_fn, mod_fns, [estd_out_path, td12_out_path], config['options'], f"{config['temp_dir']}/output")
 
         # Running EnergyScope
         cs = f"{config['case_studies_dir']}/{config['case_study_name']}"
-        run_fn = f"{config['ES_path']}/optimal_cost.run"
         es.run_energyscope(cs, run_fn, config['AMPL_path'], config['temp_dir'])
-        exit()
+
         # Example to print the sankey from this script
         output_dir = f"{config['case_studies_dir']}/{config['case_study_name']}/output/"
         es.drawSankey(path=f"{output_dir}/sankey")
+
+    exit()
 
     if 1:
         # Optimal solution in terms of EINV

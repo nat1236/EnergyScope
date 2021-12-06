@@ -21,7 +21,7 @@ if __name__ == '__main__':
     print()
 
     x = [0.]
-    y = [einv_opt_cost/einv_opt_einv-1]
+    y = [(einv_opt_cost/einv_opt_einv-1)*100]
     print(y)
     for epsilon in epsilons:
         dir = f"{case_study_path}/{test_case}_epsilon_{epsilon}"
@@ -29,19 +29,43 @@ if __name__ == '__main__':
         cost = es.get_total_cost(dir)
         einv = es.get_total_einv(dir)
         print(cost, einv)
-        x += [cost/cost_opt_cost-1]
-        y += [einv/einv_opt_einv-1]
+        x += [(cost/cost_opt_cost-1)*100]
+        y += [(einv/einv_opt_einv-1)*100]
 
     # Adding CO2 extreme point
-    x += [cost_opt_einv/cost_opt_cost-1]
+    x += [(cost_opt_einv/cost_opt_cost-1)*100]
     y += [0.]
 
     print([round(i, 2) for i in x])
-    print([round(j, 3) for j in y])
+    print([round(j, 2) for j in y])
     plt.plot(x, y,)
     plt.plot(x, y, 'o')
+    plt.plot([x[0], x[-1]], [y[0], y[-1]], 'o', c='r')
     plt.grid()
-    plt.xlabel("Deviation from cost optimal")
-    plt.ylabel("Deviation from Einv optimal")
-    plt.title("Pareto front (Cost vs Einv)")
-    plt.show()
+    plt.xlabel("Deviation from cost optimal (%)")
+    plt.ylabel("Deviation from Einv optimal (%)")
+    # plt.title("Pareto front (Cost vs Einv)")
+
+    plt.savefig('pareto_cost_einv.eps')
+
+    plt.grid(False)
+    x_fill = [x[0]] + x + [100, 100, x[0]]
+    y_fill = [100] + y + [y[-1], 100, 100]
+    plt.fill(x_fill, y_fill, c='grey', alpha=0.5)
+    plt.xlim([-1, x[-1]*1.1])
+    plt.ylim([-5, y[0]*1.1])
+
+    plt.savefig('pareto_cost_einv_space.png')
+
+    x_fill = x[1:5] + [x[4], x[1]]
+    y_fill = y[1:5] + [y[1], y[1]]
+    plt.fill(x_fill, y_fill, c='green', alpha=0.5)
+    # x_fill = x[1:5] + [x[4], 0, 0, x[1]]
+    # y_fill = y[1:5] + [0, 0, y[1], y[1]]
+    # plt.fill(x_fill, y_fill, c='red', alpha=0.5)
+    plt.xlim([-1, x[-1]*1.1])
+    plt.ylim([-5, y[0]*1.1])
+
+    plt.savefig('pareto_cost_einv_space_non_empty.png')
+
+    # plt.show()
