@@ -48,11 +48,6 @@ if __name__ == '__main__':
     # Print the current working directory
     print("Current working directory: {0}".format(cwd))
 
-    # if platform == "linux":
-    #     config_name = 'config_linux.yaml'
-    # else:
-    #     config_name = 'config.yaml'
-
     # Load configuration into a dict
     config = load_config(config_fn='config.yaml')
 
