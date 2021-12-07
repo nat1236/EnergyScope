@@ -18,7 +18,7 @@ if __name__ == '__main__':
               'importing': True,
               'printing': False,
               'printing_td': False,
-              'GWP_limit': 70000,  # [ktCO2-eq./year]	# Minimum GWP reduction
+              'GWP_limit': 20000,  # [ktCO2-eq./year]	# Minimum GWP reduction
               'data_folders':  ['..\\Data\\User_data', '..\\Data\\Developer_data'],
               'ES_path': '..\\STEP_2_Energy_Model',
               'ES_output_dir': '..\\STEP_2_Energy_Model\output',
@@ -26,16 +26,16 @@ if __name__ == '__main__':
               'all_data': pd.DataFrame(),
               'Working_directory': os.getcwd()}
 
-   # Reading the data
-    config['all_data'] = es.run_ES(config)
-    # No electricity imports
-    config['all_data'][1].loc['ELECTRICITY', 'avail'] = 0
-    # Printing and running
-    config['importing'] = False
-    config['printing'] = True
-    config['printing_td'] = True
-    config['run_ES'] = True
-    config['all_data'] = es.run_ES(config)
+   # # Reading the data
+   #  config['all_data'] = es.run_ES(config)
+   #  # No electricity imports
+   #  config['all_data'][1].loc['ELECTRICITY', 'avail'] = 0
+   #  # Printing and running
+   #  config['importing'] = False
+   #  config['printing'] = True
+   #  config['printing_td'] = True
+   #  config['run_ES'] = True
+   #  config['all_data'] = es.run_ES(config)
 
     # config['data_folders'] = ['..\\Data\\User_data', '..\\Data\\Developer_data']
     # compute the actual average annual emission factors for each resource

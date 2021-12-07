@@ -19,6 +19,7 @@ def make_dir(path):
     if not os.path.isdir(path):
         os.mkdir(path)
 
+
 def ampl_syntax(df, comment):
     # adds ampl syntax to df
     df2 = df.copy()
@@ -649,11 +650,15 @@ def compute_gwp_op(import_folders, out_path='STEP_2_Energy_Model'):
 
     # compute the actual resources used to produce each resource
     res_used = pd.DataFrame(0, columns=res_names_red, index=res_names)
+    fuel_mapping = {'SNG': 'NG', 'BIOETHANOL': 'GASOLINE', 'BIODIESEL': 'DIESEL'}
     for r in res_names_red:
         yb_r = yb2.loc[yb2.loc[:, r] > 0, :]
         for i, j in yb_r.iterrows():
             if i in res_names:
-                res_used.loc[i, r] = res_used.loc[i, r] + j[i]
+                if i not in ['SNG', 'BIOETHANOL', 'BIODIESEL']:
+                    res_used.loc[i, r] = res_used.loc[i, r] + j[i]
+                else:
+                    res_used.loc[i, r] = res_used.loc[i, r] + j[fuel_mapping[i]]
             else:
                 s = list(j[j < 0].index)[0]
                 res_used.loc[s, r] = res_used.loc[s, r] - j[s]

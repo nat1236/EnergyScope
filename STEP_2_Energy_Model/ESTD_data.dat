@@ -94,7 +94,7 @@
  ##  PARAMETERS  presented  in  Table  2.	 
  param  i_rate  :=  0.015;  #  part  [2.7.4] 
  param  re_share_primary  :=  0;  #  Minimum  RE  share  in  primary  consumption 
- param  gwp_limit  :=  70000;  #  gwp_limit  [ktCO2-eq./year]:  maximum  GWP  emissions 
+ param  gwp_limit  :=  20000;  #  gwp_limit  [ktCO2-eq./year]:  maximum  GWP  emissions 
  param  solar_area  :=  250; 
  param  power_density_pv  :=  0.2367;  #  PV  :  1  kW/4.22m2      =>  0.2367  kW/m2  =>  0.2367  GW/km2 
  param  power_density_solar_thermal  :=  0.2857;  #  Solar  thermal  :  1  kW/3.5m2  =>  0.2857  kW/m2  =>  0.2857  GW/km2 
