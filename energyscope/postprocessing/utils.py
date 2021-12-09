@@ -2,25 +2,31 @@ import pandas as pd
 
 
 def get_total_cost(output_path):
-    costs = pd.read_csv(f"{output_path}/output/cost_breakdown.txt", index_col=0, sep='\t')
+    costs = pd.read_csv(f"{output_path}/output/cost_breakdown.csv", index_col=0)
     return costs.sum().sum()
 
 
 def get_total_gwp(output_path):
-    gwp = pd.read_csv(f"{output_path}/output/gwp_breakdown.txt", index_col=0, sep='\t')
+    gwp = pd.read_csv(f"{output_path}/output/gwp_breakdown.csv", index_col=0)
     return gwp.sum().sum()
 
 
 def get_total_einv(output_path):
-    einv = pd.read_csv(f"{output_path}/output/einv_breakdown.txt", index_col=0, sep='\t')
+    einv = pd.read_csv(f"{output_path}/output/einv_breakdown.csv", index_col=0)
     return einv.sum().sum()
+
+
+def get_asset_value(output_path: str, param: str, tech: str):
+    assets = pd.read_csv(f"{output_path}/output/assets.csv", index_col=0)
+    assets.columns = [c.strip() for c in assets.columns]
+    return assets.loc[tech, param]
 
 
 # Function to compute the annual average emission factors of each resource from the outputs #
 def compute_gwp_op(import_folders, out_path='STEP_2_Energy_Model'):
     # import data and model outputs
     resources = pd.read_csv(import_folders[0] + '/Resources.csv', index_col=2, header=2)
-    yb = pd.read_csv(out_path + '/output/year_balance.txt', sep='\t', index_col=0)
+    yb = pd.read_csv(out_path + '/output/year_balance.csv', index_col=0)
 
     # clean df and get useful data
     yb.rename(columns=lambda x: x.strip(), inplace=True)

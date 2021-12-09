@@ -3,11 +3,7 @@ import matplotlib.pyplot as plt
 import energyscope as es
 
 
-if __name__ == '__main__':
-
-    case_study_path = "/home/duboisa1/Global_Grid/code/EnergyScope/case_studies"
-    test_case = 'pareto/run2'
-    epsilons = [0.0125, 0.025, 0.05, 0.1, 0.15]  # [e/100 for e in range(1, 13)]
+def plot_pareto(case_study_path, test_case, epsilons):
 
     cost_opt_cost = es.get_total_cost(f"{case_study_path}/{test_case}")
     einv_opt_cost = es.get_total_einv(f"{case_study_path}/{test_case}")
@@ -38,15 +34,16 @@ if __name__ == '__main__':
 
     print([round(i, 2) for i in x])
     print([round(j, 2) for j in y])
-    plt.plot(x, y,)
-    plt.plot(x, y, 'o')
+    # plt.plot(x, y,)
+    plt.plot(x, y, 'o', c='C1')
     plt.plot([x[0], x[-1]], [y[0], y[-1]], 'o', c='r')
     plt.grid()
     plt.xlabel("Deviation from cost optimal (%)")
     plt.ylabel("Deviation from Einv optimal (%)")
     # plt.title("Pareto front (Cost vs Einv)")
 
-    plt.savefig('pareto_cost_einv.eps')
+    plt.savefig('pareto_cost_einv.png')
+    exit()
 
     plt.grid(False)
     x_fill = [x[0]] + x + [100, 100, x[0]]
@@ -68,4 +65,22 @@ if __name__ == '__main__':
 
     plt.savefig('pareto_cost_einv_space_non_empty.png')
 
-    # plt.show()
+    plt.show()
+
+
+if __name__ == '__main__':
+
+    case_study_path = "/home/duboisa1/Global_Grid/code/EnergyScope/case_studies"
+    test_case = 'pareto/run3'
+    epsilons = [0.0125, 0.025, 0.05, 0.1, 0.15]  # [e/100 for e in range(1, 13)]
+
+
+    # plot_pareto(case_study_path, test_case, epsilons)
+
+    epsilons_pairs = [(0.05, 0.1), (0.05, 0.2), (0.05, 0.3)]
+
+    for epsilon_cost, epsilon_einv in epsilons_pairs:
+
+        path = f"{case_study_path}/{test_case}_wind_{epsilon_cost}_{epsilon_einv}"
+        print(path)
+        print(es.get_asset_value(path, "f", "WIND_OFFSHORE"))

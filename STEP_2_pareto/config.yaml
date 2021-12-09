@@ -4,7 +4,7 @@ energyscope_dir: '/home/duboisa1/Global_Grid/code/EnergyScope'
 # Path from main directory to energyscope sub-directories and files
 # Case studies directory and name of case study
 case_studies_dir: 'case_studies/pareto'
-case_study_name: 'run_test'
+case_study_name: 'run4'
 # Folders containing the csv data files
 user_data: 'Data/User_data'
 developer_data: 'Data/Developer_data'

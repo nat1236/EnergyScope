@@ -5,7 +5,7 @@ param TOTAL_COST_OP;
 param EPSILON;
 
 ##########################
-###    ADD CONTRAINT   ###
+###   ADD CONSTRAINT   ###
 ##########################
 
 # Epsilon space definition
