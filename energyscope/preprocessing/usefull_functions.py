@@ -17,12 +17,9 @@ import shutil
 from subprocess import call
 
 from pathlib import Path
+
+
 # Useful functions for printing in AMPL syntax #
-def make_dir(path):
-    if not os.path.isdir(path):
-        os.makedirs(path)
-
-
 def ampl_syntax(df, comment):
     # adds ampl syntax to df
     df2 = df.copy()
@@ -65,17 +62,17 @@ def import_data(import_folders):
     logging.info('Importing data files')
     # Reading CSV #
     # Reading User CSV to build dataframes
-    eud = pd.read_csv(import_folders[0] + '/Demand.csv', sep=';', index_col=2, header=0)
-    resources = pd.read_csv(import_folders[0] + '/Resources.csv', sep=';', index_col=2, header=2)
-    technologies = pd.read_csv(import_folders[0] + '/Technologies.csv', sep=';', index_col=3, header=0, skiprows=[1])
+    eud = pd.read_csv(import_folders[0]/'Demand.csv', sep=';', index_col=2, header=0)
+    resources = pd.read_csv(import_folders[0]/'Resources.csv', sep=';', index_col=2, header=2)
+    technologies = pd.read_csv(import_folders[0]/'Technologies.csv', sep=';', index_col=3, header=0, skiprows=[1])
 
     # Reading Developer CSV to build dataframes
-    end_uses_categories = pd.read_csv(import_folders[1] + '/END_USES_CATEGORIES.csv', sep=';')
-    layers_in_out = pd.read_csv(import_folders[1] + '/Layers_in_out.csv', sep=';', index_col=0)
-    storage_characteristics = pd.read_csv(import_folders[1] + '/Storage_characteristics.csv', sep=';', index_col=0)
-    storage_eff_in = pd.read_csv(import_folders[1] + '/Storage_eff_in.csv', sep=';', index_col=0)
-    storage_eff_out = pd.read_csv(import_folders[1] + '/Storage_eff_out.csv', sep=';', index_col=0)
-    time_series = pd.read_csv(import_folders[1] + '/Time_series.csv', sep=';', header=0, index_col=0)
+    end_uses_categories = pd.read_csv(import_folders[1]/'END_USES_CATEGORIES.csv', sep=';')
+    layers_in_out = pd.read_csv(import_folders[1]/'Layers_in_out.csv', sep=';', index_col=0)
+    storage_characteristics = pd.read_csv(import_folders[1]/'Storage_characteristics.csv', sep=';', index_col=0)
+    storage_eff_in = pd.read_csv(import_folders[1]/'Storage_eff_in.csv', sep=';', index_col=0)
+    storage_eff_out = pd.read_csv(import_folders[1]/'Storage_eff_out.csv', sep=';', index_col=0)
+    time_series = pd.read_csv(import_folders[1]/'Time_series.csv', sep=';', header=0, index_col=0)
 
     # Pre-processing #
     resources.drop(columns=['Comment'], inplace=True)
@@ -99,19 +96,14 @@ def import_data(import_folders):
 
 
 # Function to print the ESTD_data.dat file #
-def print_data(config, case = 'deter'):
-    #two_up = os.path.dirname(os.path.dirname(__file__))
+def print_data(config):
+    # two_up = os.path.dirname(os.path.dirname(__file__))
     two_up = Path(__file__).parents[2]
-    
-    if case=='deter':
-        cs = os.path.join(two_up,'case_studies/')
-        make_dir(cs)
-    else:
-        cs = os.path.join(two_up,'case_studies')
-        make_dir(cs)
-        cs = cs + '/' + config['UQ_case'] + '/'
-        make_dir(cs)
-    make_dir(cs + config['case_study'])
+
+    cs = two_up / 'case_studies'
+    cs.mkdir(parents=True, exist_ok=True)
+
+    (cs / config['case_study']).mkdir(parents=True, exist_ok=True)
 
     data = config['all_data']
 
@@ -129,7 +121,7 @@ def print_data(config, case = 'deter'):
         logging.info('Printing ESTD_data.dat')
 
         # Prints the data into .dat file (out_path) with the right syntax for AMPL
-        out_path = cs + config['case_study'] + '/ESTD_data.dat'
+        out_path = cs / config['case_study'] / 'ESTD_data.dat'
         # config['ES_path'] + '/ESTD_data.dat'
         gwp_limit = config['GWP_limit']
         import_capacity = config['import_capacity']  # [GW] Maximum power of electrical interconnections
@@ -489,7 +481,7 @@ def print_data(config, case = 'deter'):
     #                   nbr_td=12):
     if config['printing_td']:
 
-        out_path = cs + config['case_study']  # config['ES_path']
+        out_path = cs / config['case_study']  # config['ES_path']
         step1_out = config['step1_output']
         nbr_td = 12  # TODO add that as an argument
 
@@ -508,7 +500,7 @@ def print_data(config, case = 'deter'):
         res_mult_params = {'Solar': ['DHN_SOLAR', 'DEC_SOLAR']}
 
         # Redefine the output file from the out_path given #
-        out_path = out_path + '/ESTD_' + str(nbr_td) + 'TD.dat'
+        out_path = out_path/('ESTD_' + str(nbr_td) + 'TD.dat')
 
         # READING OUTPUT OF STEP1 #
         td_of_days = pd.read_csv(step1_out, names=['TD_of_days'])
@@ -677,28 +669,24 @@ def print_data(config, case = 'deter'):
 
 
 # Function to run ES from python
-def run_ES(config, case = 'deter'):
+def run_ES(config):
     two_up = Path(__file__).parents[2]
 
-    if case == 'deter':
-        cs = os.path.join(two_up,'case_studies')
-    else:
-        cs = os.path.join(two_up,'case_studies',config['UQ_case'])
-        #cs = cs + config['UQ_case'] + '/'
+    cs = two_up / 'case_studies'
 
     # TODO make the case_study folder containing all runs with input, model and outputs
-    shutil.copyfile(os.path.join(config['ES_path'], 'ESTD_model.mod'),
-                    os.path.join(cs, config['case_study'],'ESTD_model.mod'))
-    shutil.copyfile(os.path.join(config['ES_path'], 'ESTD_main.run'),
-                    os.path.join(cs, config['case_study'], 'ESTD_main.run'))
+    shutil.copyfile(config['ES_path'] / 'ESTD_model.mod',
+                    cs / config['case_study'] / 'ESTD_model.mod')
+    shutil.copyfile(config['ES_path'] / 'ESTD_main.run',
+                    cs / config['case_study'] / 'ESTD_main.run')
     # creating output directory
-    make_dir(os.path.join(cs,config['case_study'],'output'))
-    make_dir(os.path.join(cs,config['case_study'],'output','hourly_data'))
-    make_dir(os.path.join(cs,config['case_study'],'output','sankey'))
-    os.chdir(os.path.join(cs,config['case_study']))
+    (cs / config['case_study'] / 'output').mkdir(parents=True, exist_ok=True)
+    (cs / config['case_study'] / 'output' / 'hourly_data').mkdir(parents=True, exist_ok=True)
+    (cs / config['case_study'] / 'output' / 'sankey').mkdir(parents=True, exist_ok=True)
+    os.chdir(cs / config['case_study'])
     # running ES
     logging.info('Running EnergyScope')
-    call(config['AMPL_path']+ '/ampl ESTD_main.run', shell=True)
+    call('ampl ESTD_main.run', shell=True)
     os.chdir(config['Working_directory'])
 
     logging.info('End of run')
@@ -707,10 +695,10 @@ def run_ES(config, case = 'deter'):
 
 # Function to compute the annual average emission factors of each resource from the outputs #
 # Function to compute the annual average emission factors of each resource from the outputs #
-def compute_gwp_op(import_folders, out_path='STEP_2_Energy_Model'):
+def compute_gwp_op(import_folders, out_path):
     # import data and model outputs
-    resources = pd.read_csv(import_folders[0] + '\\Resources.csv', sep=';', index_col=2, header=2)
-    yb = pd.read_csv(out_path + '\\output\\year_balance.txt', sep='\t', index_col=0)
+    resources = pd.read_csv(import_folders[0] / 'Resources.csv', sep=';', index_col=2, header=2)
+    yb = pd.read_csv((out_path / 'output') / 'year_balance.txt', sep='\t', index_col=0)
 
     # clean df and get useful data
     yb.rename(columns=lambda x: x.strip(), inplace=True)
@@ -723,12 +711,13 @@ def compute_gwp_op(import_folders, out_path='STEP_2_Energy_Model'):
 
     # compute the actual resources used to produce each resource
     res_used = pd.DataFrame(0, columns=res_names_red, index=res_names)
-    fuel_mapping = {'SNG': 'NG', 'BIOETHANOL': 'GASOLINE', 'BIODIESEL': 'DIESEL'}
+    fuel_mapping = {'BIOETHANOL': 'GASOLINE', 'BIODIESEL': 'DIESEL', 'GAS_RE': 'GAS', 'H2_RE' : 'H2',
+                    'AMMONIA_RE': 'AMMONIA', 'METHANOL_RE': 'METHANOL'}
     for r in res_names_red:
         yb_r = yb2.loc[yb2.loc[:, r] > 0, :]
         for i, j in yb_r.iterrows():
             if i in res_names:
-                if i not in ['SNG', 'BIOETHANOL', 'BIODIESEL']:
+                if i not in fuel_mapping.keys():
                     res_used.loc[i, r] = res_used.loc[i, r] + j[i]
                 else:
                     res_used.loc[i, r] = res_used.loc[i, r] + j[fuel_mapping[i]]
