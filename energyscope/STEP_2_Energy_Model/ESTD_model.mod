@@ -89,6 +89,7 @@ param share_freight_road_min  >= 0, <= 1; # %_road,min [-]: min limit for penetr
 param share_freight_road_max  >= 0, <= 1; # %_road,min [-]: max limit for penetration of truck in freight transportation
 param share_heat_dhn_min >= 0, <= 1; # %_dhn,min [-]: min limit for penetration of dhn in low-T heating
 param share_heat_dhn_max >= 0, <= 1; # %_dhn,max [-]: max limit for penetration of dhn in low-T heating
+param share_ned {END_USES_TYPES_OF_CATEGORY["NON_ENERGY"]} >= 0, <= 1; # %_ned [-] share of non-energy demand per type of feedstocks.
 param t_op {HOURS, TYPICAL_DAYS} default 1;# [h]: operating time 
 param f_max {TECHNOLOGIES} >= 0; # Maximum feasible installed capacity [GW], refers to main output. storage level [GWh] for STORAGE_TECH
 param f_min {TECHNOLOGIES} >= 0; # Minimum feasible installed capacity [GW], refers to main output. storage level [GWh] for STORAGE_TECH
@@ -125,6 +126,8 @@ param power_density_solar_thermal >=0 default 0;# Maximum power irradiance for s
 ##Additional parameter (hard coded as '8760' in the thesis)
 param total_time := sum {t in PERIODS, h in HOUR_OF_PERIOD [t], td in TYPICAL_DAY_OF_PERIOD [t]} (t_op [h, td]); # [h]. added just to simplify equations
 
+
+
 #####################################
 ###   VARIABLES [Tables 2.3-2.4]  ###
 #####################################
@@ -158,16 +161,6 @@ var GWP_op {RESOURCES} >= 0; #  GWP_op [ktCO2-eq.]: Total yearly emissions of th
 var Network_losses {END_USES_TYPES, HOURS, TYPICAL_DAYS} >= 0; # Net_loss [GW]: Losses in the networks (normally electricity grid and DHN)
 var Storage_level {STORAGE_TECH, PERIODS} >= 0; # Sto_level [GWh]: Energy stored at each period
 
-
-## NEW - parameters for strategic reserves at any time:
-
-param end_uses_reserve {LAYERS, HOURS, TYPICAL_DAYS} >= 0, default 0; # Additionnal capacity that the system must be able to provide.
-var F_t_reserve {RESOURCES union TECHNOLOGIES, HOURS, TYPICAL_DAYS} >= 0; # F_t: Operation in each period [GW] or, for STORAGE_TECH, storage level [GWh]. multiplication factor with respect to the values in layers_in_out table. Takes into account c_p
-var Storage_in_reserve {i in STORAGE_TECH, LAYERS, HOURS, TYPICAL_DAYS} >= 0; # Sto_in [GW]: Power input to the storage in a certain period
-var Storage_out_reserve {i in STORAGE_TECH, LAYERS, HOURS, TYPICAL_DAYS} >= 0; # Sto_out [GW]: Power output from the storage in a certain period
-var Storage_level_reserve {STORAGE_TECH, PERIODS} >= 0; # Sto_level [GWh]: Energy stored at each period
-
-
 #############################################
 ###      CONSTRAINTS Eqs [2.1-2.39]       ###
 #############################################
@@ -196,10 +189,14 @@ subject to end_uses_t {l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
 			(end_uses_input["MOBILITY_FREIGHT"]   * mob_freight_time_series [h, td] / t_op [h, td] ) *  Share_freight_boat
 		else (if l == "HEAT_HIGH_T" then
 			end_uses_input[l] / total_time
-		else (if l == "NON_ENERGY" then
-			end_uses_input[l] / total_time
+		else (if l == "HVC" then
+			end_uses_input["NON_ENERGY"] * share_ned ["HVC"] / total_time
+		else (if l == "AMMONIA" then
+			end_uses_input["NON_ENERGY"] * share_ned ["AMMONIA"] / total_time
+		else (if l == "METHANOL" then
+			end_uses_input["NON_ENERGY"] * share_ned ["METHANOL"] / total_time
 		else 
-			0 )))))))))); # For all layers which don't have an end-use demand
+			0 )))))))))))); # For all layers which don't have an end-use demand
 
 
 ## Cost
@@ -261,11 +258,10 @@ subject to capacity_factor {j in TECHNOLOGIES}:
 subject to resource_availability {i in RESOURCES}:
 	sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t [i, h, td] * t_op [h, td]) <= avail [i];
 
+# [Eq. 2.12-bis] Constant flow of import for resources listed in SET RES_IMPORT_CONSTANT
 var Import_constant {RES_IMPORT_CONSTANT} >= 0;
 subject to resource_constant_import { i in RES_IMPORT_CONSTANT, h in HOURS, td in TYPICAL_DAYS}:
 	F_t [i, h, td] * t_op [h, td] = Import_constant [i];
-	
-
 
 ## Layers
 #--------
@@ -308,15 +304,13 @@ subject to storage_layer_in {j in STORAGE_TECH, l in LAYERS, h in HOURS, td in T
 subject to storage_layer_out {j in STORAGE_TECH, l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
 	Storage_out [j, l, h, td] * (ceil (storage_eff_out [j, l]) - 1) = 0;
 		
-# [Eq. 2.19] limit the Energy to power ratio. 
+# [Eq. 2.19] limit the Energy to power ratio for storage technologies except EV batteries
 subject to limit_energy_to_power_ratio {j in STORAGE_TECH diff {"BEV_BATT","PHEV_BATT"}, l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
 	Storage_in [j, l, h, td] * storage_charge_time[j] + Storage_out [j, l, h, td] * storage_discharge_time[j] <=  F [j] * storage_availability[j];
 	
-# [Eq. 2.19-bis] limit the Energy to power ratio. 
+# [Eq. 2.19-bis] limit the Energy to power ratio for EV batteries
 subject to limit_energy_to_power_ratio_bis {i in V2G, j in EVs_BATT_OF_V2G[i], l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
 	Storage_in [j, l, h, td] * storage_charge_time[j] + (Storage_out [j, l, h, td] + layers_in_out[i,"ELECTRICITY"]* F_t [i, h, td]) * storage_discharge_time[j]  <= ( F [j] - F_t [i,h,td] / vehicule_capacity [i] * batt_per_car[i] ) * storage_availability[j];
-	
-
 
 ## Networks
 #----------------
@@ -330,11 +324,9 @@ subject to extra_grid:
 	F ["GRID"] = 1 +  (c_grid_extra / c_inv["GRID"]) *(    (F ["WIND_ONSHORE"]     + F ["WIND_OFFSHORE"]     + F ["PV"]      )
 					                                     - (f_min ["WIND_ONSHORE"] + f_min ["WIND_OFFSHORE"] + f_min ["PV"]) );
 
-
 # [Eq. 2.22] DHN: assigning a cost to the network equal to the power capacity connected to the grid
 subject to extra_dhn:
 	F ["DHN"] = sum {j in TECHNOLOGIES diff STORAGE_TECH: layers_in_out [j,"HEAT_LOW_T_DHN"] > 0} (layers_in_out [j,"HEAT_LOW_T_DHN"] * F [j]);
-#	F ["DHN"] = sum {j in TECHNOLOGIES_OF_END_USES_TYPE["HEAT_LOW_T_DHN"]} (F [j]);
 	
 ## Additional constraints
 #------------------------
@@ -342,7 +334,6 @@ subject to extra_dhn:
 # [Eq. 2.23] Fix nuclear production constant : 
 subject to constantNuc {h in HOURS, td in TYPICAL_DAYS}:
 	F_t ["NUCLEAR", h, td] = Power_nuclear;
-
 
 # [Eq. 2.24] Operating strategy in mobility passenger (to make model more realistic)
 # Each passenger mobility technology (j) has to supply a constant share  (Shares_mobility_passenger[j]) of the passenger mobility demand
@@ -436,85 +427,10 @@ subject to solar_area_limited :
 	F["PV"] / power_density_pv + ( F ["DEC_SOLAR"] + F ["DHN_SOLAR"] ) / power_density_solar_thermal <= solar_area;
 
 
-## NEW Grid adequacy with a new time serie of reserve. 
-#-----------------------------------------------------------------------------------------------------------------------
-
-
-# [Eq. 2.10] relation between power and capacity via period capacity factor. This forces max hourly output (e.g. renewables)
-subject to capacity_factor_t_reserve {j in TECHNOLOGIES, h in HOURS, td in TYPICAL_DAYS}:
-	F_t_reserve [j, h, td] <= F [j] * c_p_t [j, h, td];
-	
-# [Eq. 2.10] Forces to have the same operation strategy.
-subject to capacity_factor_t_reserve_2 {j in TECHNOLOGIES, h in HOURS, td in TYPICAL_DAYS}:
-	F_t_reserve [j, h, td] >= F_t [j,h,td];
-	
-# [Eq. 2.11] relation between mult_t and mult via yearly capacity factor. This one forces total annual output
-subject to capacity_factor_reserve {j in TECHNOLOGIES}:
-	sum {t in PERIODS, h in HOUR_OF_PERIOD [t], td in TYPICAL_DAY_OF_PERIOD [t]} (F_t_reserve [j, h, td] * t_op [h, td]) <= F [j] * c_p [j] * total_time;	
-
-
-subject to resource_availability_res {i in RESOURCES}:
-	sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t_reserve [i, h, td] * t_op [h, td]) <= avail [i];
-
-# [Eq. 2.13] Layer balance equation with storage. Layers: input > 0, output < 0. Demand > 0. Storage: in > 0, out > 0;
-# output from technologies/resources/storage - input to technologies/storage = demand. Demand has default value of 0 for layers which are not end_uses
-subject to layer_balance_reserve {l in {"ELECTRICITY"}, h in HOURS, td in TYPICAL_DAYS}:
-		sum {i in RESOURCES union TECHNOLOGIES diff STORAGE_TECH } 
-		(layers_in_out[i, l] * F_t_reserve [i, h, td]) 
-		+ sum {j in STORAGE_TECH} ( Storage_out_reserve [j, l, h, td] - Storage_in_reserve [j, l, h, td] )
-		- End_uses [l, h, td] - end_uses_reserve [l, h, td]
-		= 0;
-
-# [Eq. 2.14] The level of the storage represents the amount of energy stored at a certain time.
-subject to storage_level_reserve {j in STORAGE_TECH, t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}:
-	Storage_level_reserve [j, t] = (if t == 1 then
-	 			Storage_level_reserve [j, card(PERIODS)] * (1.0 -  storage_losses[j])
-				+ t_op [h, td] * (   (sum {l in LAYERS: storage_eff_in [j,l] > 0}  (Storage_in_reserve [j, l, h, td]  * storage_eff_in  [j, l])) 
-				                   - (sum {l in LAYERS: storage_eff_out [j,l] > 0} (Storage_out_reserve [j, l, h, td] / storage_eff_out [j, l])))
-	else
-	 			Storage_level_reserve [j, t-1] * (1.0 -  storage_losses[j])
-				+ t_op [h, td] * (   (sum {l in LAYERS: storage_eff_in [j,l] > 0}  (Storage_in_reserve [j, l, h, td]  * storage_eff_in  [j, l])) 
-				                   - (sum {l in LAYERS: storage_eff_out [j,l] > 0} (Storage_out_reserve [j, l, h, td] / storage_eff_out [j, l])))
-				);
-
-# [Eq. 2.15] Bounding daily storage
-subject to impose_daily_storage_reserve {j in STORAGE_DAILY, t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}:
-	Storage_level_reserve [j, t] = F_t_reserve [j, h, td];
-	
-# [Eq. 2.16] Bounding seasonal storage
-subject to limit_energy_stored_to_maximum_reserve {j in STORAGE_TECH diff STORAGE_DAILY , t in PERIODS}:
-	Storage_level_reserve [j, t] <= F [j];# Never exceed the size of the storage unit
-	
-# [Eqs. 2.17-2.18] Each storage technology can have input/output only to certain layers. If incompatible then the variable is set to 0
-subject to storage_layer_in_reserve {j in STORAGE_TECH, l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
-	Storage_in_reserve [j, l, h, td] * (ceil (storage_eff_in [j, l]) - 1) = 0;
-subject to storage_layer_out_reserve {j in STORAGE_TECH, l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
-	Storage_out_reserve [j, l, h, td] * (ceil (storage_eff_out [j, l]) - 1) = 0;
-		
-# [Eq. 2.19] limit the Energy to power ratio. 
-subject to limit_energy_to_power_ratio_reserve {j in STORAGE_TECH diff {"BEV_BATT","PHEV_BATT"}, l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
-	Storage_in_reserve [j, l, h, td] * storage_charge_time[j] + Storage_out_reserve [j, l, h, td] * storage_discharge_time[j] <=  F [j] * storage_availability[j];
-	
-# [Eq. 2.19-bis] limit the Energy to power ratio. 
-subject to limit_energy_to_power_ratio_bis_reserve {i in V2G, j in EVs_BATT_OF_V2G[i], l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
-	Storage_in_reserve [j, l, h, td] * storage_charge_time[j] + (Storage_out_reserve [j, l, h, td] + layers_in_out[i,"ELECTRICITY"]* F_t_reserve [i, h, td]) * storage_discharge_time[j]  <= ( F [j] - F_t_reserve [i,h,td] / vehicule_capacity [i] * batt_per_car[i] ) * storage_availability[j];
-	
-# [Eq. 2.31]  Impose EVs to be supplied by their battery.
-subject to EV_storage_for_V2G_demand_reserve {j in V2G, i in EVs_BATT_OF_V2G[j], h in HOURS, td in TYPICAL_DAYS}:
-	Storage_out_reserve [i,"ELECTRICITY",h,td] >=  - layers_in_out[j,"ELECTRICITY"]* F_t_reserve [j, h, td];
-		
-# [Eq. 2.31-bis]  Impose a minimum state of charge at some hours of the day:
-subject to ev_minimum_state_of_charge_reserve {j in V2G, i in EVs_BATT_OF_V2G[j],  t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}:
-	Storage_level_reserve [i, t] >=  F [i] * state_of_charge_ev [i, h];
-
-
-
-
 ##########################
 ### OBJECTIVE FUNCTION ###
 ##########################
 
 # Can choose between TotalGWP and TotalCost
 minimize obj: TotalCost;
-
 
