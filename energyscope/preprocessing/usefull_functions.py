@@ -15,6 +15,9 @@ import csv
 import os
 import shutil
 from subprocess import call
+import json
+import git
+from datetime import datetime
 
 from pathlib import Path
 
@@ -55,6 +58,17 @@ def print_param(name, param, comment, out_path):
             writer.writerow(['param ' + str(name) + ' := ' + str(param) + ';'])
         else:
             writer.writerow(['param ' + str(name) + ' := ' + str(param) + '; # ' + str(comment)])
+
+def print_json(my_sets, file):  # printing the dictionary containing all the sets into directory/sets.json
+    with open(file, 'w') as fp:
+        json.dump(my_sets, fp, indent=4, sort_keys=True)
+    return
+
+def read_json(file):
+    # reading the saved dictionary containing all the sets from directory/sets.json
+    with open(file, 'r') as fp:
+        data = json.load(fp)
+    return data
 
 
 # Function to import the data from the CSV data files #
@@ -668,6 +682,38 @@ def print_data(config):
     return
 
 
+def update_version(config):
+    """
+
+    Updating the version.json file into case_studies directory to add the description of this run
+
+    """
+    # path of case_studies dir
+    two_up = Path(__file__).parents[2]
+    cs_versions = two_up / 'case_studies/versions.json'
+
+    # get git commit used
+    repo = git.Repo(search_parent_directories=True)
+    commit_name = repo.head.commit.summary
+
+    # get current datetime
+    now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+    # read versions dict
+    try:
+        versions = read_json(cs_versions)
+    except:
+        versions = dict()
+
+    # update the key for this case_study
+    keys_to_extract = ['comment', 'printing', 'printing_td', 'GWP_limit']
+    versions[config['case_study']] = {key: config[key] for key in keys_to_extract}
+    versions[config['case_study']]['commit_name'] = commit_name
+    versions[config['case_study']]['datetime'] = now
+
+    print_json(versions, cs_versions)
+    return
+
 # Function to run ES from python
 def run_ES(config):
     two_up = Path(__file__).parents[2]
@@ -688,6 +734,8 @@ def run_ES(config):
     logging.info('Running EnergyScope')
     call('ampl ESTD_main.run', shell=True)
     os.chdir(config['Working_directory'])
+
+    update_version(config)
 
     logging.info('End of run')
     return

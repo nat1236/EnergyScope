@@ -19,6 +19,7 @@ if __name__ == '__main__':
     step1_output = path/'energyscope'/'STEP_1_TD_selection'/'TD_of_days.out'
     # specify the configuration
     config = {'case_study': 'test', # Name of the case study. The outputs will be printed into : config['ES_path']+'\output_'+config['case_study']
+              'comment': 'This is a test of versionning',
               'printing': True,  # printing the data in ETSD_data.dat file for the optimisation problem
               'printing_td': True,  # printing the time related data in ESTD_12TD.dat for the optimisaiton problem
               'GWP_limit': 20000,  # [ktCO2-eq./year]	# Minimum GWP reduction
