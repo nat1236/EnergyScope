@@ -65,7 +65,8 @@ except Exception:
     logging.config.dictConfig(_LOGCONFIG)
 
 
-from .preprocessing.usefull_functions import compute_gwp_op, print_data, import_data, run_ES, print_param, \
+from .preprocessing.usefull_functions import compute_gwp_op, print_data, print_td_data, import_data, print_param, \
     newline, print_df, print_set, ampl_syntax
+from .preprocessing.run_ES import run_ES
 from .postprocessing.cost import get_total_cost
 from .postprocessing.draw_sankey.ESSankey import drawSankey
