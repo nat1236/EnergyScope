@@ -1,4 +1,4 @@
-from .usefull_functions import import_data,print_data, print_td_data, update_version
+from .usefull_functions import import_data, print_data, print_td_data, update_version
 import pandas as pd
 import os
 from pathlib import Path
@@ -8,21 +8,19 @@ import logging
 
 
 def run_ES(config):
-    
-    if config['importing'] :
+    if config['importing']:
         # Reading the data
         all_data = import_data(config['data_folders'])
     else:
         all_data = config['all_data']
 
-    
     if config['printing']:
         # Printing ESTD_data.dat
         print_data(config)
-    
+
     if config['printing_td']:
         # Printing ESD_12TD.dat
-        if config['import_reserves']=='from_csv':
+        if config['import_reserves'] == 'from_csv':
             # TODO: Make more elegant without so much processing and generalize country names (not only ES)
             reserves = pd.read_csv('Reserves.csv')
             reserves.index = range(1, len(reserves) + 1)
@@ -30,7 +28,7 @@ def run_ES(config):
             reserves = pd.DataFrame(reserves / 1000)
             reserves.rename(columns={'ES': 'end_uses_reserve'}, inplace=True)
             print_td_data(config, nbr_td=12, end_uses_reserve=reserves)
-        elif config['import_reserves']=='from_df':
+        elif config['import_reserves'] == 'from_df':
             print_td_data(config, nbr_td=12, end_uses_reserve=config['reserves'])
         else:
             print_td_data(config, nbr_td=12)

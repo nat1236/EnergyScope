@@ -6,3 +6,5 @@ dependencies:
   - pandas >= 0.19
   - matplotlib >= 1.5.1
   - setuptools_scm
+  - gitpython
+  - plotly

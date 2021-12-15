@@ -19,13 +19,13 @@ if __name__ == '__main__':
     step1_output = path/'energyscope'/'STEP_1_TD_selection'/'TD_of_days.out'
     # specify the configuration
     config = {'case_study': 'test', # Name of the case study. The outputs will be printed into : config['ES_path']+'\output_'+config['case_study']
-            'comment': 'This is a test of versionning',
+              'comment': 'This is a test of versionning',
               'run_ES': False,
               'import_reserves': '',
               'importing': True,
               'printing': False,
               'printing_td': False,
-              'GWP_limit': 20000,  # [ktCO2-eq./year]	# Minimum GWP reduction
+              'GWP_limit': 45000,  # [ktCO2-eq./year]	# Minimum GWP reduction
               'import_capacity': 9.72,  # [GW] Electrical interconnections with neighbouring countries
               'data_folders':  [user_data, developer_data],  # Folders containing the csv data files
               'ES_path':  es_path,  # Path to the energy model (.mod and .run files)

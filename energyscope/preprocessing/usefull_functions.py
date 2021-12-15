@@ -751,6 +751,8 @@ def compute_gwp_op(import_folders, out_path):
     # clean df and get useful data
     yb.rename(columns=lambda x: x.strip(), inplace=True)
     yb.rename(index=lambda x: x.strip(), inplace=True)
+    resources.rename(columns=lambda x: x.strip(), inplace=True)
+    resources.rename(index=lambda x: x.strip(), inplace=True)
     gwp_op_data = resources['gwp_op'].dropna()
     res_names = list(gwp_op_data.index)
     res_names_red = list(set(res_names) & set(list(yb.columns)))  # resources that are a layer
