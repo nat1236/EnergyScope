@@ -1,0 +1,16 @@
+* enlevé -> "CAR": ["CAR_PHEV", "CAR_BEV"],
+de "evs" dans le doc user_defined.json de l'année 2040mod
+
+->> en fait, dû le remettre sinon il y avait des soucis 
+
+
+goddbye eq 2.39 : Limit surface area for solar dans .mod
+
+
+
+ENLEVÉ DANS .JSON
+** "share_ned" : {"HVC":0.779, "METHANOL":0.029, "AMMONIA":0.192},   
+** , "HEAT_LOW_T_DHN": 5.0E-02  (à la ligne loss_network)
+** "STORAGE_DAILY" : ["TS_DEC_HP_ELEC","TS_DEC_THHP_GAS","TS_DEC_COGEN_GAS","TS_DEC_COGEN_OIL",
+                    "TS_DEC_ADVCOGEN_GAS","TS_DEC_ADVCOGEN_H2","TS_DEC_BOILER_GAS","TS_DEC_BOILER_WOOD","TS_DEC_BOILER_OIL",
+                    "TS_DEC_DIRECT_ELEC","TS_DHN_DAILY","BATT_LI","TS_HIGH_TEMP"]
