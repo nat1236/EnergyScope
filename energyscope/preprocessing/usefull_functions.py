@@ -15,7 +15,7 @@ import csv
 import os
 import json
 import shutil
-from subprocess import call
+from subprocess import run
 
 from pathlib import Path
 
@@ -88,15 +88,15 @@ def import_data(config):
     import_folders = config['data_dir']
     logging.info('Importing data files from '+ str(import_folders))
     # Reading CSV #
-    eud = pd.read_csv(import_folders / 'Demand.csv', sep=';', index_col=2, header=0)
-    resources = pd.read_csv(import_folders / 'Resources.csv', sep=';', index_col=2, header=2)
-    technologies = pd.read_csv(import_folders / 'Technologies.csv', sep=';', index_col=3, header=0, skiprows=[1])
-    end_uses_categories = pd.read_csv(import_folders / 'END_USES_CATEGORIES.csv', sep=';')
-    layers_in_out = pd.read_csv(import_folders / 'Layers_in_out.csv', sep=';', index_col=0)
-    storage_characteristics = pd.read_csv(import_folders / 'Storage_characteristics.csv', sep=';', index_col=0)
-    storage_eff_in = pd.read_csv(import_folders / 'Storage_eff_in.csv', sep=';', index_col=0)
-    storage_eff_out = pd.read_csv(import_folders / 'Storage_eff_out.csv', sep=';', index_col=0)
-    time_series = pd.read_csv(import_folders / 'Time_series.csv', sep=';', header=0, index_col=0)
+    eud = pd.read_csv(import_folders / 'Demand.csv', sep=',', index_col=2, header=0)
+    resources = pd.read_csv(import_folders / 'Resources.csv', sep=',', index_col=2, header=2)
+    technologies = pd.read_csv(import_folders / 'Technologies.csv', sep=',', index_col=3, header=0, skiprows=[1])
+    end_uses_categories = pd.read_csv(import_folders / 'END_USES_CATEGORIES.csv', sep=',')
+    layers_in_out = pd.read_csv(import_folders / 'Layers_in_out.csv', sep=',', index_col=0)
+    storage_characteristics = pd.read_csv(import_folders / 'Storage_characteristics.csv', sep=',', index_col=0)
+    storage_eff_in = pd.read_csv(import_folders / 'Storage_eff_in.csv', sep=',', index_col=0)
+    storage_eff_out = pd.read_csv(import_folders / 'Storage_eff_out.csv', sep=',', index_col=0)
+    time_series = pd.read_csv(import_folders / 'Time_series.csv', sep=',', header=0, index_col=0)
 
     # Reading user_defined.json
     config['user_defined'] = read_json(import_folders / 'user_defined.json')
@@ -196,7 +196,7 @@ def print_data(config, case = 'deter'):
         share_heat_dhn_min = config['user_defined']['share_heat_dhn_min']
         share_heat_dhn_max = config['user_defined']['share_heat_dhn_max']
 
-        share_ned = pd.DataFrame.from_dict(config['user_defined']['share_ned'], orient='index', columns=['share_ned'])
+        #share_ned = pd.DataFrame.from_dict(config['user_defined']['share_ned'], orient='index', columns=['share_ned'])
 
         # Electric vehicles :
         # km-pass/h/veh. : Gives the equivalence between capacity and number of vehicles.
@@ -220,10 +220,10 @@ def print_data(config, case = 'deter'):
         END_USES_INPUT = list(eud_simple.index)
         END_USES_CATEGORIES = list(end_uses_categories.loc[:, 'END_USES_CATEGORIES'].unique())
         RESOURCES = list(resources_simple.index)
-        RES_IMPORT_CONSTANT = ['GAS', 'GAS_RE', 'H2_RE', 'H2']  # TODO automatise
-        BIOFUELS = list(resources[resources.loc[:, 'Subcategory'] == 'Biofuel'].index)
-        RE_RESOURCES = list(
-            resources.loc[(resources['Category'] == 'Renewable'), :].index)
+        #RES_IMPORT_CONSTANT = ['GAS', 'GAS_RE', 'H2_RE', 'H2']  # TODO automatise
+        #BIOFUELS = list(resources[resources.loc[:, 'Subcategory'] == 'Biofuel'].index)
+        #RE_RESOURCES = list(
+        #    resources.loc[(resources['Category'] == 'Renewable'), :].index)
         EXPORT = list(resources.loc[resources['Category'] == 'Export', :].index)
 
         END_USES_TYPES_OF_CATEGORY = []
@@ -254,36 +254,37 @@ def print_data(config, case = 'deter'):
         V2G = list(evs.index)
 
         # STORAGE_OF_END_USES_TYPES ->  #METHOD 2 (using storage_eff_in)
-        STORAGE_OF_END_USES_TYPES_DHN = []
-        STORAGE_OF_END_USES_TYPES_DEC = []
+        #STORAGE_OF_END_USES_TYPES_DHN = []
+        #STORAGE_OF_END_USES_TYPES_DEC = []
         STORAGE_OF_END_USES_TYPES_ELEC = []
-        STORAGE_OF_END_USES_TYPES_HIGH_T = []
+        #STORAGE_OF_END_USES_TYPES_HIGH_T = []
 
         for i in STORAGE_TECH:
-            if storage_eff_in.loc[i, 'HEAT_LOW_T_DHN'] > 0:
-                STORAGE_OF_END_USES_TYPES_DHN.append(i)
-            elif storage_eff_in.loc[i, 'HEAT_LOW_T_DECEN'] > 0:
-                STORAGE_OF_END_USES_TYPES_DEC.append(i)
-            elif storage_eff_in.loc[i, 'ELECTRICITY'] > 0:
+            #if storage_eff_in.loc[i, 'HEAT_LOW_T_DHN'] > 0:
+            #    STORAGE_OF_END_USES_TYPES_DHN.append(i)
+            #elif storage_eff_in.loc[i, 'HEAT_LOW_T_DECEN'] > 0:
+            #    STORAGE_OF_END_USES_TYPES_DEC.append(i)
+            if storage_eff_in.loc[i, 'ELECTRICITY'] > 0:
                 STORAGE_OF_END_USES_TYPES_ELEC.append(i)
-            elif storage_eff_in.loc[i, 'HEAT_HIGH_T'] > 0:
-                STORAGE_OF_END_USES_TYPES_HIGH_T.append(i)
+            #elif storage_eff_in.loc[i, 'HEAT_HIGH_T'] > 0:
+            #    STORAGE_OF_END_USES_TYPES_HIGH_T.append(i)
 
         STORAGE_OF_END_USES_TYPES_ELEC.remove('BEV_BATT')
         STORAGE_OF_END_USES_TYPES_ELEC.remove('PHEV_BATT')
 
         # etc. still TS_OF_DEC_TECH and EVs_BATT_OF_V2G missing... -> hard coded !
 
-        COGEN = []
-        BOILERS = []
+        # COGEN = []
+        #BOILERS = []
 
-        for i in ALL_TECH_OF_EUT:
-            if (layers_in_out.loc[i, 'HEAT_HIGH_T'] == 1 or layers_in_out.loc[i, 'HEAT_LOW_T_DHN'] == 1 or
-                    layers_in_out.loc[i, 'HEAT_LOW_T_DECEN'] == 1):
-                if layers_in_out.loc[i, 'ELECTRICITY'] > 0:
-                    COGEN.append(i)
-                else:
-                    BOILERS.append(i)
+
+        #for i in ALL_TECH_OF_EUT:
+        #    if (layers_in_out.loc[i, 'HEAT_HIGH_T'] == 1 or layers_in_out.loc[i, 'HEAT_LOW_T_DHN'] == 1 or
+        #            layers_in_out.loc[i, 'HEAT_LOW_T_DECEN'] == 1):
+        #        if layers_in_out.loc[i, 'ELECTRICITY'] > 0:
+        #            COGEN.append(i)
+        #        else:
+        #            BOILERS.append(i)
 
         # Adding AMPL syntax #
         # creating Batt_per_Car_df for printing
@@ -297,7 +298,7 @@ def print_data(config, case = 'deter'):
         vehicule_capacity_df = ampl_syntax(vehicule_capacity_df, '# km-pass/h/veh. : Gives the equivalence between '
                                                                  'capacity and number of vehicles.')
         eud_simple = ampl_syntax(eud_simple, '')
-        share_ned = ampl_syntax(share_ned, '')
+        #share_ned = ampl_syntax(share_ned, '')
         layers_in_out = ampl_syntax(layers_in_out, '')
         technologies_simple = ampl_syntax(technologies_simple, '')
         technologies_simple[technologies_simple > 1e+14] = 'Infinity'
@@ -360,9 +361,10 @@ def print_data(config, case = 'deter'):
         print_set(END_USES_INPUT, 'END_USES_INPUT', out_path)
         print_set(END_USES_CATEGORIES, 'END_USES_CATEGORIES', out_path)
         print_set(RESOURCES, 'RESOURCES', out_path)
-        print_set(RES_IMPORT_CONSTANT, 'RES_IMPORT_CONSTANT', out_path)
-        print_set(BIOFUELS, 'BIOFUELS', out_path)
-        print_set(RE_RESOURCES, 'RE_RESOURCES', out_path)
+        # print_set(END_USES_TYPES, 'END_USES_TYPES', out_path)   #j'ai rajouté au modèle
+        #print_set(RES_IMPORT_CONSTANT, 'RES_IMPORT_CONSTANT', out_path)
+        #print_set(BIOFUELS, 'BIOFUELS', out_path)
+        #print_set(RE_RESOURCES, 'RE_RESOURCES', out_path)
         print_set(EXPORT, 'EXPORT', out_path)
         newline(out_path)
         n = 0
@@ -385,33 +387,33 @@ def print_data(config, case = 'deter'):
         print_set(V2G, 'V2G', out_path)
         print_set(STORAGE_DAILY, 'STORAGE_DAILY', out_path)
         newline(out_path)
-        print_set(STORAGE_OF_END_USES_TYPES_DHN, 'STORAGE_OF_END_USES_TYPES ["HEAT_LOW_T_DHN"]', out_path)
-        print_set(STORAGE_OF_END_USES_TYPES_DEC, 'STORAGE_OF_END_USES_TYPES ["HEAT_LOW_T_DECEN"]', out_path)
+        #print_set(STORAGE_OF_END_USES_TYPES_DHN, 'STORAGE_OF_END_USES_TYPES ["HEAT_LOW_T_DHN"]', out_path)
+        #print_set(STORAGE_OF_END_USES_TYPES_DEC, 'STORAGE_OF_END_USES_TYPES ["HEAT_LOW_T_DECEN"]', out_path)
         print_set(STORAGE_OF_END_USES_TYPES_ELEC, 'STORAGE_OF_END_USES_TYPES ["ELECTRICITY"]', out_path)
-        print_set(STORAGE_OF_END_USES_TYPES_HIGH_T, 'STORAGE_OF_END_USES_TYPES ["HEAT_HIGH_T"]', out_path)
+        #print_set(STORAGE_OF_END_USES_TYPES_HIGH_T, 'STORAGE_OF_END_USES_TYPES ["HEAT_HIGH_T"]', out_path)
         newline(out_path)
         with open(out_path, mode='a', newline='') as file:
             writer = csv.writer(file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
             writer.writerow(['# Link between storages & specific technologies	'])
         # Hardcoded
-        print_set(['TS_DEC_HP_ELEC'], 'TS_OF_DEC_TECH ["DEC_HP_ELEC"]', out_path)
-        print_set(['TS_DEC_DIRECT_ELEC'], 'TS_OF_DEC_TECH ["DEC_DIRECT_ELEC"]', out_path)
-        print_set(['TS_DEC_THHP_GAS'], 'TS_OF_DEC_TECH ["DEC_THHP_GAS"]', out_path)
-        print_set(['TS_DEC_COGEN_GAS'], 'TS_OF_DEC_TECH ["DEC_COGEN_GAS"]', out_path)
-        print_set(['TS_DEC_ADVCOGEN_GAS'], 'TS_OF_DEC_TECH ["DEC_ADVCOGEN_GAS"]', out_path)
-        print_set(['TS_DEC_COGEN_OIL'], 'TS_OF_DEC_TECH ["DEC_COGEN_OIL"]', out_path)
-        print_set(['TS_DEC_ADVCOGEN_H2'], 'TS_OF_DEC_TECH ["DEC_ADVCOGEN_H2"]', out_path)
-        print_set(['TS_DEC_BOILER_GAS'], 'TS_OF_DEC_TECH ["DEC_BOILER_GAS"]', out_path)
-        print_set(['TS_DEC_BOILER_WOOD'], 'TS_OF_DEC_TECH ["DEC_BOILER_WOOD"]', out_path)
-        print_set(['TS_DEC_BOILER_OIL'], 'TS_OF_DEC_TECH ["DEC_BOILER_OIL"]', out_path)
+        #print_set(['TS_DEC_HP_ELEC'], 'TS_OF_DEC_TECH ["DEC_HP_ELEC"]', out_path)
+        #print_set(['TS_DEC_DIRECT_ELEC'], 'TS_OF_DEC_TECH ["DEC_DIRECT_ELEC"]', out_path)
+        #print_set(['TS_DEC_THHP_GAS'], 'TS_OF_DEC_TECH ["DEC_THHP_GAS"]', out_path)
+        #print_set(['TS_DEC_COGEN_GAS'], 'TS_OF_DEC_TECH ["DEC_COGEN_GAS"]', out_path)
+        #print_set(['TS_DEC_ADVCOGEN_GAS'], 'TS_OF_DEC_TECH ["DEC_ADVCOGEN_GAS"]', out_path)
+        #print_set(['TS_DEC_COGEN_OIL'], 'TS_OF_DEC_TECH ["DEC_COGEN_OIL"]', out_path)
+        #print_set(['TS_DEC_ADVCOGEN_H2'], 'TS_OF_DEC_TECH ["DEC_ADVCOGEN_H2"]', out_path)
+        #print_set(['TS_DEC_BOILER_GAS'], 'TS_OF_DEC_TECH ["DEC_BOILER_GAS"]', out_path)
+        #print_set(['TS_DEC_BOILER_WOOD'], 'TS_OF_DEC_TECH ["DEC_BOILER_WOOD"]', out_path)
+        #print_set(['TS_DEC_BOILER_OIL'], 'TS_OF_DEC_TECH ["DEC_BOILER_OIL"]', out_path)
         print_set(['PHEV_BATT'], 'EVs_BATT_OF_V2G ["CAR_PHEV"]', out_path)
         print_set(['BEV_BATT'], 'EVs_BATT_OF_V2G ["CAR_BEV"]', out_path)
         newline(out_path)
         with open(out_path, mode='a', newline='') as file:
             writer = csv.writer(file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
             writer.writerow(['# Additional sets, just needed for printing results	'])
-        print_set(COGEN, 'COGEN', out_path)
-        print_set(BOILERS, 'BOILERS', out_path)
+        #print_set(COGEN, 'COGEN', out_path)
+        #print_set(BOILERS, 'BOILERS', out_path)
         newline(out_path)
 
         # printing parameters
@@ -455,19 +457,19 @@ def print_data(config, case = 'deter'):
         print_param('share_mobility_public_min', share_mobility_public_min, '', out_path)
         print_param('share_mobility_public_max', share_mobility_public_max, '', out_path)
         newline(out_path)
-        print_param('share_freight_train_min', share_freight_train_min, '', out_path)
-        print_param('share_freight_train_max', share_freight_train_max, '', out_path)
-        newline(out_path)
-        print_param('share_freight_road_min', share_freight_road_min, '', out_path)
-        print_param('share_freight_road_max', share_freight_road_max, '', out_path)
-        newline(out_path)
-        print_param('share_freight_boat_min', share_freight_boat_min, '', out_path)
-        print_param('share_freight_boat_max', share_freight_boat_max, '', out_path)
-        newline(out_path)
-        print_param('share_heat_dhn_min', share_heat_dhn_min, '', out_path)
-        print_param('share_heat_dhn_max', share_heat_dhn_max, '', out_path)
-        newline(out_path)
-        print_df('param:', share_ned, out_path)
+        #print_param('share_freight_train_min', share_freight_train_min, '', out_path)
+        #print_param('share_freight_train_max', share_freight_train_max, '', out_path)
+        #newline(out_path)
+        #print_param('share_freight_road_min', share_freight_road_min, '', out_path)
+        #print_param('share_freight_road_max', share_freight_road_max, '', out_path)
+        #newline(out_path)
+        #print_param('share_freight_boat_min', share_freight_boat_min, '', out_path)
+        #print_param('share_freight_boat_max', share_freight_boat_max, '', out_path)
+        #newline(out_path)
+        #print_param('share_heat_dhn_min', share_heat_dhn_min, '', out_path)
+        #print_param('share_heat_dhn_max', share_heat_dhn_max, '', out_path)
+        #newline(out_path)
+        #print_df('param:', share_ned, out_path)
         newline(out_path)
         with open(out_path, mode='a', newline='') as file:
             writer = csv.writer(file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
@@ -520,14 +522,14 @@ def print_data(config, case = 'deter'):
         # DICTIONARIES TO TRANSLATE NAMES INTO AMPL SYNTAX #
         # for EUD timeseries
         eud_params = {'Electricity (%_elec)': 'param electricity_time_series :',
-                      'Space Heating (%_sh)': 'param heating_time_series :',
-                      'Passanger mobility (%_pass)': 'param mob_pass_time_series :',
-                      'Freight mobility (%_freight)': 'param mob_freight_time_series :'}
+                      #'Space Heating (%_sh)': 'param heating_time_series :',
+                      'Passanger mobility (%_pass)': 'param mob_pass_time_series :'}
+                      #'Freight mobility (%_freight)': 'param mob_freight_time_series :'}
         # for resources timeseries that have only 1 tech linked to it
         res_params = {'PV': 'PV', 'Wind_onshore': 'WIND_ONSHORE', 'Wind_offshore': 'WIND_OFFSHORE',
                       'Hydro_river': 'HYDRO_RIVER'}
         # for resources timeseries that have several techs linked to it
-        res_mult_params = {'Solar': ['DHN_SOLAR', 'DEC_SOLAR']}
+       # res_mult_params = {'Solar': ['DHN_SOLAR', 'DEC_SOLAR']}
 
         # Redefine the output file from the out_path given #
         out_path = out_path + '/ESTD_' + str(nbr_td) + 'TD.dat'
@@ -596,9 +598,9 @@ def print_data(config, case = 'deter'):
         all_td_ts = td_ts.pivot(index='H_of_D', columns='D_of_H')
 
         # COMPUTE peak_sh_factor #
-        max_sh_td = td_ts.loc[:, 'Space Heating (%_sh)'].max()
-        max_sh_all = time_series.loc[:, 'Space Heating (%_sh)'].max()
-        peak_sh_factor = max_sh_all / max_sh_td
+        #max_sh_td = td_ts.loc[:, 'Space Heating (%_sh)'].max()
+        #max_sh_all = time_series.loc[:, 'Space Heating (%_sh)'].max()
+        #peak_sh_factor = max_sh_all / max_sh_td
 
         # PRINTING #
         # printing description of file
@@ -636,7 +638,7 @@ def print_data(config, case = 'deter'):
             # peak_sh_factor
             td_writer.writerow(['# SETS depending on TD	'])
             td_writer.writerow(['# --------------------------	'])
-            td_writer.writerow(['param peak_sh_factor	:=	' + str(peak_sh_factor)])
+            #td_writer.writerow(['param peak_sh_factor	:=	' + str(peak_sh_factor)])
             td_writer.writerow([';		'])
             td_writer.writerow(['		'])
 
@@ -685,15 +687,15 @@ def print_data(config, case = 'deter'):
             newline(out_path)
 
         # printing c_p_t part where 1 ts => more then 1 tech
-        for k in res_mult_params.keys():
-            for j in res_mult_params[k]:
-                ts = all_td_ts[k]
-                ts.columns = np.arange(1, nbr_td + 1)
-                ts = ts * norm[k] / norm_td[k]
-                ts.fillna(0, inplace=True)
-                ts = ampl_syntax(ts, '')
-                s = '["' + j + '",*,*]:'
-                ts.to_csv(out_path, sep='\t', mode='a', header=True, index=True, index_label=s, quoting=csv.QUOTE_NONE)
+        #for k in res_mult_params.keys():
+        #    for j in res_mult_params[k]:
+        #        ts = all_td_ts[k]
+        #        ts.columns = np.arange(1, nbr_td + 1)
+        #        ts = ts * norm[k] / norm_td[k]
+        #        ts.fillna(0, inplace=True)
+        #        ts = ampl_syntax(ts, '')
+        #        s = '["' + j + '",*,*]:'
+        #        ts.to_csv(out_path, sep='\t', mode='a', header=True, index=True, index_label=s, quoting=csv.QUOTE_NONE)
 
     return
 
@@ -704,17 +706,17 @@ def run_ES(config, case = 'deter'):
 
     if case == 'deter':
         cs = os.path.join(two_up,'case_studies')
-        run = 'ESTD_main_all_prints.run'
+        runner = 'ESTD_main_all_prints.run'
     else:
         cs = os.path.join(two_up,'case_studies',config['UQ_case'])
-        run = 'ESTD_main.run'
+        runner = 'ESTD_main.run'
         #cs = cs + config['UQ_case'] + '/'
 
     # TODO make the case_study folder containing all runs with input, model and outputs
     shutil.copyfile(os.path.join(config['ES_path'], 'ESTD_model.mod'),
                     os.path.join(cs, config['case_study'],'ESTD_model.mod'))
-    shutil.copyfile(os.path.join(config['ES_path'], run),
-                    os.path.join(cs, config['case_study'], run))
+    shutil.copyfile(os.path.join(config['ES_path'], runner),
+                    os.path.join(cs, config['case_study'], runner))
     # creating output directory
     make_dir(os.path.join(cs,config['case_study'],'output'))
     make_dir(os.path.join(cs,config['case_study'],'output','hourly_data'))
@@ -725,10 +727,11 @@ def run_ES(config, case = 'deter'):
 
     if config['AMPL_path'] is None:
         #TODO add error message if ampl not found, check why doesn't print log in certain IDE
-        call('ampl '+run, shell=True)
+        #call('ampl '+run, shell=True)
+        run(["ampl", runner])
     else:
         #TODO check about cplex call in .run if not in PATH
-        call(config['AMPL_path']+'/ampl '+run, shell=True)
+        run(config['AMPL_path']+'/ampl '+runner, shell=True)
 
     os.chdir(config['Working_directory'])
 

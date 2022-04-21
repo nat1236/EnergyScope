@@ -1,0 +1,5 @@
+,,,Availability,Direct and indirect emissions,Price,Direct emissions,
+,,units,[GWh/y],[ktCO2-eq./GWh],[Meuro/GWh],[ktCO2-eq./GWh],
+Category,Subcategory,parameter name,avail,gwp_op,c_op,CO2_op,Comment
+Non-renewable,Other non-renewable,ELECTRICITY,32439.8697,0,0.104928,0,
+Export,Export,ELEC_EXPORT,1000000000000000,0,0,0,

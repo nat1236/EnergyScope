@@ -22,7 +22,7 @@ data ESTD_12TD.dat; # TDs depending data
 ################################################################################
 ################################################################################
 
-option solver cplex;
+option solver '/home/natacha/Downloads/ampl_linux-intel64/cplex';
 
 #option show_stats 3; # show statistics
 #option times 1; # show time
