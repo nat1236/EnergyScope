@@ -14,11 +14,11 @@ if __name__ == '__main__':
     # First case run   #######################
     # define path
     path = Path(__file__).parents[1]
-    data = path / 'Data' / '2040mod'
+    data = path / 'Data' / '2040elec'
     es_path = path / 'energyscope' / 'STEP_2_Energy_Model'
     step1_output = path / 'energyscope' / 'STEP_1_TD_selection' / 'TD_of_days.out'
     # specify the configuration
-    config = {'case_study': 'test_2040', # Name of the case study. The outputs will be printed into : config['ES_path']+'\output_'+config['case_study']
+    config = {'case_study': 'test_2040_elec', # Name of the case study. The outputs will be printed into : config['ES_path']+'\output_'+config['case_study']
               'printing': True,  # printing the data in ETSD_data.dat file for the optimisation problem
               'printing_td': True,  # printing the time related data in ESTD_12TD.dat for the optimisaiton problem
               'GWP_limit': 1e+7,  # [ktCO2-eq./year]	# Minimum GWP reduction
@@ -53,11 +53,11 @@ if __name__ == '__main__':
 
     #Second case run #################################
     path2 = Path(__file__).parents[1]
-    data2 = path2 / 'Data' / '2050mod'
+    data2 = path2 / 'Data' / '2050elec'
     es_path2 = path2 / 'energyscope' / 'STEP_2_Energy_Model'
     step1_output2 = path2 / 'energyscope' / 'STEP_1_TD_selection' / 'TD_of_days.out'
     # specify the configuration
-    config2 = {'case_study': 'test_2050',
+    config2 = {'case_study': 'test_2050_elec',
           # Name of the case study. The outputs will be printed into : config['ES_path']+'\output_'+config['case_study']
           'printing': True,  # printing the data in ETSD_data.dat file for the optimisation problem
           'printing_td': True,  # printing the time related data in ESTD_12TD.dat for the optimisaiton problem

@@ -185,25 +185,25 @@ def print_data(config, case = 'deter'):
             'power_density_solar_thermal']  # Solar thermal : 1 kW/3.5m2 => 0.2857 kW/m2 => 0.2857 GW/km2
 
         # Technologies shares
-        share_mobility_public_min = config['user_defined']['share_mobility_public_min']
-        share_mobility_public_max = config['user_defined']['share_mobility_public_max']
-        share_freight_train_min = config['user_defined']['share_freight_train_min']
-        share_freight_train_max = config['user_defined']['share_freight_train_max']
-        share_freight_road_min = config['user_defined']['share_freight_road_min']
-        share_freight_road_max = config['user_defined']['share_freight_road_max']
-        share_freight_boat_min = config['user_defined']['share_freight_boat_min']
-        share_freight_boat_max = config['user_defined']['share_freight_boat_max']
-        share_heat_dhn_min = config['user_defined']['share_heat_dhn_min']
-        share_heat_dhn_max = config['user_defined']['share_heat_dhn_max']
+        # share_mobility_public_min = config['user_defined']['share_mobility_public_min']
+        # share_mobility_public_max = config['user_defined']['share_mobility_public_max']
+        # share_freight_train_min = config['user_defined']['share_freight_train_min']
+        # share_freight_train_max = config['user_defined']['share_freight_train_max']
+        # share_freight_road_min = config['user_defined']['share_freight_road_min']
+        # share_freight_road_max = config['user_defined']['share_freight_road_max']
+        # share_freight_boat_min = config['user_defined']['share_freight_boat_min']
+        # share_freight_boat_max = config['user_defined']['share_freight_boat_max']
+        # share_heat_dhn_min = config['user_defined']['share_heat_dhn_min']
+        # share_heat_dhn_max = config['user_defined']['share_heat_dhn_max']
 
         #share_ned = pd.DataFrame.from_dict(config['user_defined']['share_ned'], orient='index', columns=['share_ned'])
 
         # Electric vehicles :
         # km-pass/h/veh. : Gives the equivalence between capacity and number of vehicles.
         # ev_batt, size [GWh]: Size of batteries per car per technology of EV
-        keys_to_extract = ['EVs_BATT', 'vehicule_capacity', 'batt_per_car']
-        evs = pd.DataFrame({key: config['user_defined']['evs'][key] for key in keys_to_extract},
-                           index=config['user_defined']['evs']['CAR'])
+        keys_to_extract = ['EVs_BATT'] #, 'vehicule_capacity', 'batt_per_car']
+        evs = pd.DataFrame({key: config['user_defined']['evs'][key] for key in keys_to_extract})
+                           # index=config['user_defined']['evs']['CAR'])
         state_of_charge_ev = pd.DataFrame.from_dict(config['user_defined']['state_of_charge_ev'], orient='index',
                                                     columns=np.arange(1, 25))
         # Network
@@ -222,8 +222,7 @@ def print_data(config, case = 'deter'):
         RESOURCES = list(resources_simple.index)
         #RES_IMPORT_CONSTANT = ['GAS', 'GAS_RE', 'H2_RE', 'H2']  # TODO automatise
         #BIOFUELS = list(resources[resources.loc[:, 'Subcategory'] == 'Biofuel'].index)
-        #RE_RESOURCES = list(
-        #    resources.loc[(resources['Category'] == 'Renewable'), :].index)
+        RE_RESOURCES = list(resources.loc[(resources['Category'] == 'Renewable'), :].index)
         EXPORT = list(resources.loc[resources['Category'] == 'Export', :].index)
 
         END_USES_TYPES_OF_CATEGORY = []
@@ -251,7 +250,7 @@ def print_data(config, case = 'deter'):
 
         # EVs
         EVs_BATT = list(evs.loc[:, 'EVs_BATT'])
-        V2G = list(evs.index)
+        # V2G = list(evs.index)
 
         # STORAGE_OF_END_USES_TYPES ->  #METHOD 2 (using storage_eff_in)
         #STORAGE_OF_END_USES_TYPES_DHN = []
@@ -275,7 +274,7 @@ def print_data(config, case = 'deter'):
         # etc. still TS_OF_DEC_TECH and EVs_BATT_OF_V2G missing... -> hard coded !
 
         # COGEN = []
-        #BOILERS = []
+        # BOILERS = []
 
 
         #for i in ALL_TECH_OF_EUT:
@@ -288,15 +287,15 @@ def print_data(config, case = 'deter'):
 
         # Adding AMPL syntax #
         # creating Batt_per_Car_df for printing
-        batt_per_car_df = evs[['batt_per_car']]
-        vehicule_capacity_df = evs[['vehicule_capacity']]
+        # batt_per_car_df = evs[['batt_per_car']]
+        # vehicule_capacity_df = evs[['vehicule_capacity']]
         state_of_charge_ev = ampl_syntax(state_of_charge_ev, '')
         loss_network_df = pd.DataFrame(data=loss_network.values(), index=loss_network.keys(), columns=[' '])
         # Putting all the df in ampl syntax
-        batt_per_car_df = ampl_syntax(batt_per_car_df,
-                                      '# ev_batt,size [GWh]: Size of batteries per car per technology of EV')
-        vehicule_capacity_df = ampl_syntax(vehicule_capacity_df, '# km-pass/h/veh. : Gives the equivalence between '
-                                                                 'capacity and number of vehicles.')
+        # batt_per_car_df = ampl_syntax(batt_per_car_df,
+        #                               '# ev_batt,size [GWh]: Size of batteries per car per technology of EV')
+        # vehicule_capacity_df = ampl_syntax(vehicule_capacity_df, '# km-pass/h/veh. : Gives the equivalence between '
+        #                                                          'capacity and number of vehicles.')
         eud_simple = ampl_syntax(eud_simple, '')
         #share_ned = ampl_syntax(share_ned, '')
         layers_in_out = ampl_syntax(layers_in_out, '')
@@ -364,7 +363,7 @@ def print_data(config, case = 'deter'):
         # print_set(END_USES_TYPES, 'END_USES_TYPES', out_path)   #j'ai rajouté au modèle
         #print_set(RES_IMPORT_CONSTANT, 'RES_IMPORT_CONSTANT', out_path)
         #print_set(BIOFUELS, 'BIOFUELS', out_path)
-        #print_set(RE_RESOURCES, 'RE_RESOURCES', out_path)
+        print_set(RE_RESOURCES, 'RE_RESOURCES', out_path)
         print_set(EXPORT, 'EXPORT', out_path)
         newline(out_path)
         n = 0
@@ -384,7 +383,7 @@ def print_data(config, case = 'deter'):
             writer = csv.writer(file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
             writer.writerow(['# Storage subsets'])
         print_set(EVs_BATT, 'EVs_BATT', out_path)
-        print_set(V2G, 'V2G', out_path)
+        # print_set(V2G, 'V2G', out_path)
         print_set(STORAGE_DAILY, 'STORAGE_DAILY', out_path)
         newline(out_path)
         #print_set(STORAGE_OF_END_USES_TYPES_DHN, 'STORAGE_OF_END_USES_TYPES ["HEAT_LOW_T_DHN"]', out_path)
@@ -406,8 +405,8 @@ def print_data(config, case = 'deter'):
         #print_set(['TS_DEC_BOILER_GAS'], 'TS_OF_DEC_TECH ["DEC_BOILER_GAS"]', out_path)
         #print_set(['TS_DEC_BOILER_WOOD'], 'TS_OF_DEC_TECH ["DEC_BOILER_WOOD"]', out_path)
         #print_set(['TS_DEC_BOILER_OIL'], 'TS_OF_DEC_TECH ["DEC_BOILER_OIL"]', out_path)
-        print_set(['PHEV_BATT'], 'EVs_BATT_OF_V2G ["CAR_PHEV"]', out_path)
-        print_set(['BEV_BATT'], 'EVs_BATT_OF_V2G ["CAR_BEV"]', out_path)
+        # print_set(['PHEV_BATT'], 'EVs_BATT_OF_V2G ["CAR_PHEV"]', out_path)
+        # print_set(['BEV_BATT'], 'EVs_BATT_OF_V2G ["CAR_BEV"]', out_path)
         newline(out_path)
         with open(out_path, mode='a', newline='') as file:
             writer = csv.writer(file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
@@ -437,10 +436,10 @@ def print_data(config, case = 'deter'):
         with open(out_path, mode='a', newline='') as file:
             writer = csv.writer(file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
             writer.writerow(['# Part [2.4]	'])
-        print_df('param:', batt_per_car_df, out_path)
-        newline(out_path)
-        print_df('param:', vehicule_capacity_df, out_path)
-        newline(out_path)
+        # print_df('param:', batt_per_car_df, out_path)
+        # newline(out_path)
+        # print_df('param:', vehicule_capacity_df, out_path)
+        # newline(out_path)
         print_df('param state_of_charge_ev :', state_of_charge_ev, out_path)
         newline(out_path)
 
@@ -454,9 +453,9 @@ def print_data(config, case = 'deter'):
             writer.writerow(['# end_Uses_year see part [2.1]'])
         print_df('param end_uses_demand_year : ', eud_simple, out_path)
         newline(out_path)
-        print_param('share_mobility_public_min', share_mobility_public_min, '', out_path)
-        print_param('share_mobility_public_max', share_mobility_public_max, '', out_path)
-        newline(out_path)
+        # print_param('share_mobility_public_min', share_mobility_public_min, '', out_path)
+        # print_param('share_mobility_public_max', share_mobility_public_max, '', out_path)
+        # newline(out_path)
         #print_param('share_freight_train_min', share_freight_train_min, '', out_path)
         #print_param('share_freight_train_max', share_freight_train_max, '', out_path)
         #newline(out_path)
@@ -521,9 +520,9 @@ def print_data(config, case = 'deter'):
 
         # DICTIONARIES TO TRANSLATE NAMES INTO AMPL SYNTAX #
         # for EUD timeseries
-        eud_params = {'Electricity (%_elec)': 'param electricity_time_series :',
+        eud_params = {'Electricity (%_elec)': 'param electricity_time_series :'}
                       #'Space Heating (%_sh)': 'param heating_time_series :',
-                      'Passanger mobility (%_pass)': 'param mob_pass_time_series :'}
+                      # 'Passanger mobility (%_pass)': 'param mob_pass_time_series :',
                       #'Freight mobility (%_freight)': 'param mob_freight_time_series :'}
         # for resources timeseries that have only 1 tech linked to it
         res_params = {'PV': 'PV', 'Wind_onshore': 'WIND_ONSHORE', 'Wind_offshore': 'WIND_OFFSHORE',

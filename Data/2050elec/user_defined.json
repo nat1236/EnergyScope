@@ -1,0 +1,17 @@
+{
+    "i_rate" : 0.015,
+    "re_share_primary" : 0,
+    "solar_area" : 250,
+	"power_density_pv" : 0.2367,
+    "power_density_solar_thermal" : 0.2857,
+
+    "evs" : {"EVs_BATT": ["PHEV_BATT", "BEV_BATT"]},
+    "state_of_charge_ev" :	{
+			"PHEV_BATT" : [0.0,0.0,0.0,0.0,0.0,0.0,0.6,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],
+			"BEV_BATT" :  [0.0,0.0,0.0,0.0,0.0,0.0,0.6,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+	},
+    "loss_network" : {"ELECTRICITY": 4.7E-02},
+    "c_grid_extra" : 367.8,
+    "import_capacity" : 11.894,
+    "STORAGE_DAILY" : ["BATT_LI"]
+}

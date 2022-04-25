@@ -68,5 +68,6 @@ except Exception:
 from .preprocessing.usefull_functions import compute_gwp_op, print_data, import_data, run_ES, print_param, \
     newline, print_df, print_set, ampl_syntax, make_dir
 from .preprocessing.uq_estd import run_ESTD_UQ, transcript_uncertainties
+from .postprocessing.postprocessing import *
 from .postprocessing.cost import get_total_cost
 from .postprocessing.draw_sankey.ESSankey import drawSankey

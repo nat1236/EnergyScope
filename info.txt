@@ -18,10 +18,25 @@ ENLEVÉ DANS .JSON
 
 -----------------------------------
 
-Avec folder 2040mod : total cost is 21841.181133107224
-
-Avec folder 2050mod : total cost is 22121.527177100623
-
-Les valeurs sont proches donc bon signe
+Dans fichier _init__.py, rajouter "from .postprocessing.postprocessing import *" en mettant aussi le fichier postprocessing.py dans le bon dossier
 
 
+
+Pour imprimer le coût marginal de l'élec : à mettre dans fichier .run
+## Print marginal cost from layer balance
+print "--------------SAVING Marginal Cost -----------";
+printf "%s\t%s", "TD", "Hour"> (PathName & "/marginal_cost.txt");
+for {l in LAYERS}{
+printf "\t%s", l > (PathName & "/marginal_cost.txt");
+}
+printf "\n" > (PathName & "/marginal_cost.txt");
+for {td in TYPICAL_DAYS, h in HOURS}{
+printf "%.0f\t%.0f", td, h > (PathName & "/marginal_cost.txt");
+
+
+
+for {l in LAYERS}{
+printf "\t%.6f", layer_balance[l,h,td] > (PathName & "/marginal_cost.txt");
+}
+printf "\n" > (PathName & "/marginal_cost.txt");
+}
