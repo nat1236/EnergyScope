@@ -27,12 +27,9 @@ def read_outputs(cs, hourly_data=False, layers=[]):
     outputs['assets'] = pd.read_csv(path/'assets.txt', sep="\t", skiprows=[1], index_col=0)
     outputs['assets'].columns = list(outputs['assets'].columns)[1:]+['']
     outputs['assets'].dropna(how='all', axis=1, inplace=True)
-    outputs['CO2_cost'] = pd.read_csv(path/'CO2_cost.txt', sep="\t", header=None, index_col=False)
-    outputs['CO2_cost'].index = ['CO2_cost']
-    outputs['CO2_cost'].columns = ['CO2_cost']
     outputs['cost_breakdown'] = pd.read_csv(path/'cost_breakdown.txt', sep='\t', index_col=0)
     outputs['gwp_breakdown'] = pd.read_csv(path/'gwp_breakdown.txt', sep='\t', index_col=0)
-    outputs['GWP_op'] = pd.read_csv(path/'GWP_op.txt', sep='\t', index_col=0)
+    # outputs['GWP_op'] = pd.read_csv(path/'GWP_op.txt', sep='\t', index_col=0)
     outputs['losses'] = pd.read_csv(path/'losses.txt', sep='\t', index_col=0)
     outputs['resources_breakdown'] = pd.read_csv(path/'resources_breakdown.txt', sep='\t', index_col=0)
     outputs['year_balance'] = pd.read_csv(path/'year_balance.txt', sep='\t', index_col=0).dropna(how='all', axis=1)
@@ -90,7 +87,7 @@ def scale_marginal_cost(config: dict):
 
     Returns
     -------
-    mc_sclaed: pd.DataFrame()
+    mc_scaled: pd.DataFrame()
     Scaled dataframe of marginal cost
 
     """
@@ -106,7 +103,7 @@ def scale_marginal_cost(config: dict):
     b['hour'] = h
     b = b.set_index(['index', 'hour'])  # set multi-index as (TD number, hour)
     # Read marginal cost and rescale it
-    cs = Path(__file__).parents[2]/'case_studies'/config['case_study']/'output'
+    cs = Path(__file__).parents[2]/'case_studies'/config['case_study']/'output'/'hourly_data'
     mc = pd.read_csv(cs/'marginal_cost.txt', sep='\t', index_col=[0,1])
     mc_scaled = mc.div(b[1],axis=0)
     mc_scaled.to_csv(cs / 'mc_scaled.txt', sep='\t')
@@ -207,21 +204,21 @@ def plot_layer_elec_td(layer_elec: pd.DataFrame, title='Layer electricity', tds 
     plotdata = plotdata[reorder_elec]
     # Grouping some tech for plot readability
         # Public mobility
-    plotdata.loc[:,'TRAMWAY_TROLLEY'] = plotdata.loc[:,['TRAMWAY_TROLLEY', 'TRAIN_PUB']].sum(axis=1)
-    plotdata.rename(columns={'TRAMWAY_TROLLEY': 'Public mobility'}, inplace=True)
-    plotdata.drop(columns=['TRAIN_PUB'], inplace=True)
+    # plotdata.loc[:,'TRAMWAY_TROLLEY'] = plotdata.loc[:,['TRAMWAY_TROLLEY', 'TRAIN_PUB']].sum(axis=1)
+    # plotdata.rename(columns={'TRAMWAY_TROLLEY': 'Public mobility'}, inplace=True)
+    # plotdata.drop(columns=['TRAIN_PUB'], inplace=True)
         # Freight mobility
-    plotdata.loc[:,'TRAIN_FREIGHT'] = plotdata.loc[:,['TRAIN_FREIGHT', 'TRUCK_ELEC']].sum(axis=1)
-    plotdata.rename(columns={'TRAIN_FREIGHT': 'Freight'}, inplace=True)
-    plotdata.drop(columns=['TRUCK_ELEC'], inplace=True)
+    # plotdata.loc[:,'TRAIN_FREIGHT'] = plotdata.loc[:,['TRAIN_FREIGHT', 'TRUCK_ELEC']].sum(axis=1)
+    # plotdata.rename(columns={'TRAIN_FREIGHT': 'Freight'}, inplace=True)
+    # plotdata.drop(columns=['TRUCK_ELEC'], inplace=True)
 
         # sum CAR_BEV and BEV_BATT_Pout into 1 column for easier reading of the impact of BEV on the grid
-    plotdata.loc[:, 'BEV_BATT_Pout'] = plotdata.loc[:, 'BEV_BATT_Pout'] + plotdata.loc[:, 'CAR_BEV']
-    plotdata.drop(columns=['CAR_BEV'], inplace=True)
+    # plotdata.loc[:, 'BEV_BATT_Pout'] = plotdata.loc[:, 'BEV_BATT_Pout'] + plotdata.loc[:, 'CAR_BEV']
+    # plotdata.drop(columns=['CAR_BEV'], inplace=True)
         # same for PHEV
-    plotdata.loc[:, 'PHEV_BATT_Pout'] = plotdata.loc[:, 'PHEV_BATT_Pout'] + plotdata.loc[:, 'CAR_PHEV']
-    plotdata.drop(columns=['CAR_PHEV'], inplace=True)
-        # treshold to group other tech
+    # plotdata.loc[:, 'PHEV_BATT_Pout'] = plotdata.loc[:, 'PHEV_BATT_Pout'] + plotdata.loc[:, 'CAR_PHEV']
+    # plotdata.drop(columns=['CAR_PHEV'], inplace=True)
+        # threshold to group other tech
     treshold = 0.02*plotdata.abs().max().max()
         # Other prod. -> the ones with max<treshold
     other_prods = list(plotdata.loc[:,(plotdata.max()>0.0) & (plotdata.max()<treshold)].columns)

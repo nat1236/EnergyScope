@@ -1,5 +1,3 @@
 param :,storage_charge_time,storage_discharge_time,storage_availability,storage_losses
 PHS,5,4,1,0
 BATT_LI,4,4,1,0.0002
-BEV_BATT,10,4,0.2,0.0002
-PHEV_BATT,10,4,0.2,0.0002

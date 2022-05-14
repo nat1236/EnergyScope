@@ -250,6 +250,23 @@ else {
 			}
 
 
+
+			## Print marginal cost from layer balance into txt file
+            print "--------------SAVING Marginal Cost -----------";
+            printf "%s\t%s", "TD", "Hour"> (PathName & "/hourly_data/marginal_cost.txt");
+            for {l in LAYERS}{
+                printf "\t%s", l > (PathName & "/hourly_data/marginal_cost.txt");
+            }
+            printf "\n" > (PathName & "/marginal_cost.txt");
+            for {td in TYPICAL_DAYS, h in HOURS}{
+                printf "%.0f\t%.0f", td, h > (PathName & "/hourly_data/marginal_cost.txt");
+                for {l in LAYERS}{
+                    printf "\t%.6f", layer_balance[l,h,td] > (PathName & "/hourly_data/marginal_cost.txt");
+                }
+                printf "\n" > (PathName & "/hourly_data/marginal_cost.txt");
+            }
+
+
 			################################################################################
 			################################################################################                                                    
 			##																			  ##
