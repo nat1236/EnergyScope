@@ -219,7 +219,20 @@ else {
 					}
 					printf "%f\t", -End_uses [l, h, td]  >> (PathName & "/hourly_data/layer_" & l &".txt"); 
 				}
-			}
+                ## Printing Q_buy and q_sell
+				if l = "ELECTRICITY" then {
+				    printf "Td \t Time\t" > (PathName & "/hourly_data/var_Q_buy_" & l &".txt");
+				    printf "Td \t Time\t" > (PathName & "/hourly_data/param_q_sell_" & l &".txt");
+				    for {td in TYPICAL_DAYS, h in HOURS} {
+				        printf "\n %d \t %d\t",td,h   >> (PathName & "/hourly_data/var_Q_buy_" & l &".txt");
+				        printf "%f\t", (Q_buy[l,h,td]) >> (PathName & "/hourly_data/var_Q_buy_" & l &".txt");
+
+				        printf "\n %d \t %d\t",td,h   >> (PathName & "/hourly_data/param_q_sell_" & l &".txt");
+				        printf "%f\t", (q_sell[l,h,td]) >> (PathName & "/hourly_data/param_q_sell_" & l &".txt");
+				    }
+				}
+
+			} #end of for LAYERS loop
 			
 			#
 
@@ -255,15 +268,15 @@ else {
             print "--------------SAVING Marginal Cost -----------";
             printf "%s\t%s", "TD", "Hour"> (PathName & "/hourly_data/marginal_cost.txt");
             for {l in LAYERS}{
-                printf "\t%s", l > (PathName & "/hourly_data/marginal_cost.txt");
+                printf "\t%s", l >> (PathName & "/hourly_data/marginal_cost.txt");
             }
-            printf "\n" > (PathName & "/marginal_cost.txt");
+            printf "\n" >> (PathName & "/hourly_data/marginal_cost.txt");
             for {td in TYPICAL_DAYS, h in HOURS}{
-                printf "%.0f\t%.0f", td, h > (PathName & "/hourly_data/marginal_cost.txt");
+                printf "%.0f\t%.0f", td, h >> (PathName & "/hourly_data/marginal_cost.txt");
                 for {l in LAYERS}{
-                    printf "\t%.6f", layer_balance[l,h,td] > (PathName & "/hourly_data/marginal_cost.txt");
+                    printf "\t%.6f", layer_balance[l,h,td] >> (PathName & "/hourly_data/marginal_cost.txt");
                 }
-                printf "\n" > (PathName & "/hourly_data/marginal_cost.txt");
+                printf "\n" >> (PathName & "/hourly_data/marginal_cost.txt");
             }
 
 

@@ -121,7 +121,7 @@ var Power_nuclear  >=0; # [GW] P_Nuc: Constant load of nuclear
 ####### New variables for buying quantity to other country, and total costs for buying and selling layers to other country
 var Q_buy{LAYERS, HOURS, TYPICAL_DAYS} >= 0;
 var C_buy{LAYERS} >= 0;  #[Meuros] : total cost of buying layers to other country
-var C_sell {LAYERS} >= 0;    #or in parameters ??
+var C_sell {LAYERS} >= 0;
 
 
 ##Dependent variables [Table 2.4] :

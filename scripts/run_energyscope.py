@@ -21,6 +21,7 @@ if __name__ == '__main__':
      config = {'case_study': '2040_elec_new', # Name of the case study. The outputs will be printed into : config['ES_path']+'\output_'+config['case_study']
                'printing': True,  # printing the data in ETSD_data.dat file for the optimisation problem
                'printing_td': True,  # printing the time related data in ESTD_12TD.dat for the optimisaiton problem
+               'first_it' : True,  #First iteration of the for loop
                'GWP_limit': 1e+7,  # [ktCO2-eq./year]	# Minimum GWP reduction
                'data_dir': data,  # Folders containing the csv data files
                'ES_path': es_path,  # Path to the energy model (.mod and .run files)
@@ -32,8 +33,6 @@ if __name__ == '__main__':
 
     # Reading the data
      es.import_data(config)
-
-     ##TODO Student work: Write the updates in data HERE
      # Example to change data: update wood availability to 23 400 GWh (ref value here)
      #config['all_data']['Resources'].loc['WOOD', 'avail'] = 23400
      # Example to change share of public mobility into passenger mobility into 0.5 (ref value here)
@@ -41,12 +40,11 @@ if __name__ == '__main__':
 
      config['all_data']['Resources'].loc['ELECTRICITY', 'avail'] = 0
      config['all_data']['Resources'].loc['ELEC_EXPORT', 'avail'] = 0
-
      # Printing the .dat files for the optimisation problem
      es.print_data(config)
-
      # Running EnergyScope
      es.run_ES(config)
+     es.scale_marginal_cost(config)
 #
 
     # Example to print the sankey from this script
@@ -65,6 +63,7 @@ if __name__ == '__main__':
     #       # Name of the case study. The outputs will be printed into : config['ES_path']+'\output_'+config['case_study']
     #       'printing': True,  # printing the data in ETSD_data.dat file for the optimisation problem
     #       'printing_td': True,  # printing the time related data in ESTD_12TD.dat for the optimisaiton problem
+    #       'first_it' : True,
     #       'GWP_limit': 1e+7,  # [ktCO2-eq./year]	# Minimum GWP reduction
     #       'data_dir': data2,  # Folders containing the csv data files
     #       'ES_path': es_path2,  # Path to the energy model (.mod and .run files)
@@ -81,18 +80,45 @@ if __name__ == '__main__':
     # config2['all_data']['Resources'].loc['ELEC_EXPORT', 'avail'] = 0
     # es.print_data(config2)
     # es.run_ES(config2)
+    # es.scale_marginal_cost(config2)
 
-    # #creates a dictionnary of outputs of one case study
-    # outputs = es.read_outputs('test_2040_elec_new')
-    # #scales the marginal costs
-    # es.scale_marginal_cost(config)
+    #creates a dictionnary of outputs of one case study
+     outputs = es.read_outputs('2040_elec_new')
     # #creates a dict of layer elec and plots it hourly
-    # dict_elec = es.read_layer('test_2040_elec_new','layer_ELECTRICITY')
+    #  dict_elec = es.read_layer('2040_elec_new','layer_ELECTRICITY')
     # es.hourly_plot(dict_elec)
 
+    # marginal cost of config
+     cs = path/'case_studies'/config['case_study']/'output'/'hourly_data'
+     mc = pd.read_csv(cs/'mc_scaled.txt', sep='\t', usecols = ['Hour', 'TD', 'ELECTRICITY'])
+     pivot_mc = mc.pivot(index = 'Hour', columns = 'TD')
+     #pivot_mc.to_csv(cs/'pivot_mc.csv')  #affiche le bon résultat
+
+    # marginal cost of config2
+    #  cs2 = path2 / 'case_studies' / config2['case_study'] / 'output' / 'hourly_data'
+    #  mc2 = pd.read_csv(cs / 'mc_scaled.txt', sep='\t', usecols=['Hour', 'TD', 'ELECTRICITY'])
+    #  pivot_mc2 = mc.pivot(index='Hour', columns='TD')
+
+    # creating a dataframe for the iterations on c_buy and c_sell
+    # !! refaire puisque c_buy et c_sell sont des tableaux
+    #  data = {'c_buy': [c_buy], 'c_sell': [c_sell]}
+    #  iter_df = pd.DataFrame(data)
+
     # for i in range(5):  #pour l'instant 5 itérations
+    #  #just take layer ELECTRICITY et pas besoin d'itérer sur h et td
+    #      config['first_it'] = False
+    #      config2['first_it'] = False
+    #     # config.c_buy = config2.mc_scaled
+    #     # config.c_sell = config.mc_scaled
+    #     # config.q_sell = config2.Q_buy
+    #     # pt juste 12TD ? changer nom du case study ? avant ou après run ?
+    #     es.print_data(config)
+    #     es.print_data(config2)
     #
+    #    # iter_df.append({'c_buy' : , 'c_sell' : })
     #
     #     es.run_ES(config)
     #     es.run_ES(config2)
+    #     es.scale_marginal_cost(config)
+#         es.scale_marginal_cost(config2)
     #     i = i+1
