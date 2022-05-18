@@ -89,10 +89,13 @@ if __name__ == '__main__':
     # es.hourly_plot(dict_elec)
 
     # marginal cost of config
-     cs = path/'case_studies'/config['case_study']/'output'/'hourly_data'
-     mc = pd.read_csv(cs/'mc_scaled.txt', sep='\t', usecols = ['Hour', 'TD', 'ELECTRICITY'])
+     out = path/'case_studies'/config['case_study']
+     cs = path/'case_studies'/config['case_study']/'output'
+     mc = pd.read_csv(cs/'hourly_data'/'mc_scaled.txt', sep='\t', usecols = ['Hour', 'TD', 'ELECTRICITY'])
      pivot_mc = mc.pivot(index = 'Hour', columns = 'TD')
      #pivot_mc.to_csv(cs/'pivot_mc.csv')  #affiche le bon résultat
+
+     # cbuy = pd.read_csv(out/'ESTD_cbuy.txt', sep='\t',)
 
     # marginal cost of config2
     #  cs2 = path2 / 'case_studies' / config2['case_study'] / 'output' / 'hourly_data'
@@ -106,8 +109,8 @@ if __name__ == '__main__':
 
     # for i in range(5):  #pour l'instant 5 itérations
     #  #just take layer ELECTRICITY et pas besoin d'itérer sur h et td
-    #      config['first_it'] = False
-    #      config2['first_it'] = False
+    #     # config['first_it'] = False
+    #     # config2['first_it'] = False
     #     # config.c_buy = config2.mc_scaled
     #     # config.c_sell = config.mc_scaled
     #     # config.q_sell = config2.Q_buy
