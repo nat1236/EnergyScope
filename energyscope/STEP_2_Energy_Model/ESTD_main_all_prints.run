@@ -11,8 +11,11 @@ model ESTD_model.mod;
 
 
 # Load standard data
-data ESTD_data.dat    # not TDs depending data
+data ESTD_data.dat ;   # not TDs depending data
 data ESTD_12TD.dat; # TDs depending data
+data ESTD_cbuy.dat ;
+data ESTD_csell.dat ;
+data ESTD_qsell.dat ;
 
 ################################################################################
 ################################################################################                                                    
@@ -221,13 +224,14 @@ else {
 				}
                 ## Printing Q_buy and q_sell
 				if l = "ELECTRICITY" then {
-				    printf "Td \t Time\t" > (PathName & "/hourly_data/var_Q_buy_" & l &".txt");
-				    printf "Td \t Time\t" > (PathName & "/hourly_data/param_q_sell_" & l &".txt");
+				    printf "%s\t%s\t%s", "TD", "Hour", "ELECTRICITY" > (PathName & "/hourly_data/var_Q_buy_" & l &".txt");
+				    printf "%s\t%s\t%s", "TD", "Hour", "ELECTRICITY" > (PathName & "/hourly_data/param_q_sell_" & l &".txt");
+				  #  printf "TD \t Hour\t ELECTRICITY" > (PathName & "/hourly_data/param_q_sell_" & l &".txt");
 				    for {td in TYPICAL_DAYS, h in HOURS} {
-				        printf "\n %d \t %d\t",td,h   >> (PathName & "/hourly_data/var_Q_buy_" & l &".txt");
+				        printf "\n%d\t%d\t",td,h   >> (PathName & "/hourly_data/var_Q_buy_" & l &".txt");
 				        printf "%f\t", (Q_buy[l,h,td]) >> (PathName & "/hourly_data/var_Q_buy_" & l &".txt");
 
-				        printf "\n %d \t %d\t",td,h   >> (PathName & "/hourly_data/param_q_sell_" & l &".txt");
+				        printf "\n%d\t%d\t",td,h   >> (PathName & "/hourly_data/param_q_sell_" & l &".txt");
 				        printf "%f\t", (q_sell[l,h,td]) >> (PathName & "/hourly_data/param_q_sell_" & l &".txt");
 				    }
 				}

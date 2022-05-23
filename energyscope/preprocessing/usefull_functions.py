@@ -399,7 +399,7 @@ def print_data(config, case = 'deter'):
         step1_out = config['step1_output']
         nbr_td = 12  # TODO add that as an argument
 
-        logging.info('Printing ESTD_' + str(nbr_td) + 'TD.dat')
+        logging.info('Printing ESTD_' + str(nbr_td) + 'TD.dat and 3 data files')
 
         # DICTIONARIES TO TRANSLATE NAMES INTO AMPL SYNTAX #
         # for EUD timeseries
@@ -560,7 +560,7 @@ def print_data(config, case = 'deter'):
             newline(out_path)
 
         out = cs + config['case_study']
-        out_path_cbuy = out + '/ESTD_cbuy.txt'
+        out_path_cbuy = out + '/ESTD_cbuy.dat'
         #printing param c_buy for ELECTRICITY ONLY
         with open(out_path_cbuy, mode='w', newline='') as td_file:
             td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
@@ -576,7 +576,7 @@ def print_data(config, case = 'deter'):
             ts.to_csv(out_path_cbuy, sep='\t', mode='a', header=True, index=True, index_label=s, quoting=csv.QUOTE_NONE)
             newline(out_path_cbuy)
 
-        out_path_csell = out + '/ESTD_csell.txt'
+        out_path_csell = out + '/ESTD_csell.dat'
         # printing param c_sell for ELECTRICITY ONLY
         with open(out_path_csell, mode='w', newline='') as td_file:
             td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
@@ -592,7 +592,7 @@ def print_data(config, case = 'deter'):
             ts.to_csv(out_path_csell, sep='\t', mode='a', header=True, index=True, index_label=s, quoting=csv.QUOTE_NONE)
             newline(out_path_csell)
 
-        out_path_qsell = out + '/ESTD_qsell.txt'
+        out_path_qsell = out + '/ESTD_qsell.dat'
         # printing param q_sell for ELECTRICITY ONLY
         with open(out_path_qsell, mode='w', newline='') as td_file:
             td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
@@ -621,7 +621,7 @@ def print_data(config, case = 'deter'):
 
     return
 
-# def td_management(config) :
+# def td_management(config,key) :
 #     two_up = Path(__file__).parents[2]
 #     cs = os.path.join(two_up, 'case_studies/')
 #     out_path = cs + config['case_study']  # config['ES_path']
@@ -693,7 +693,12 @@ def print_data(config, case = 'deter'):
 #     # pivoting TD_ts to obtain a (24,Nbr_TD*Nbr_ts*N_c)
 #     all_td_ts = td_ts.pivot(index='H_of_D', columns='D_of_H')
 #
-#     return norm, norm_td, t_h_td, all_td_ts
+#     ts = all_td_ts[key]
+#     ts.columns = np.arange(1, nbr_td + 1)
+#     ts = ts * norm[key] / norm_td[key]
+#     ts.fillna(0, inplace=True)
+#
+#     return ts
 
 
 # Function to run ES from python
