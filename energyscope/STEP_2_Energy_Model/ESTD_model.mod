@@ -97,9 +97,9 @@ param power_density_pv >=0 default 0;# Maximum power irradiance for PV.
 param power_density_solar_thermal >=0 default 0;# Maximum power irradiance for solar thermal.
 
 ####### New parameters for buying and selling costs to other countries, and selling quantity
-param c_buy {LAYERS, HOURS, TYPICAL_DAYS} >= 0 default 100000000; #[Meuros/Gwh] default Infinity
-param c_sell {LAYERS, HOURS, TYPICAL_DAYS} >= 0 default 0;
-param q_sell {LAYERS, HOURS, TYPICAL_DAYS} >= 0 default 0;
+param c_buy {LAYERS, HOURS, TYPICAL_DAYS} >= 0 default 100000000; #[Meuros/Gwh] default Infinity, cost of buying one unit of a layer
+param c_sell {LAYERS, HOURS, TYPICAL_DAYS} >= 0 default 0; #cost of selling one unit of layer
+param q_sell {LAYERS, HOURS, TYPICAL_DAYS} >= 0 default 0; #quantity of a layer to be sold to the other country
 
 
 ##Additional parameter (hard coded as '8760' in the thesis)
@@ -119,9 +119,9 @@ var Storage_out {i in STORAGE_TECH, LAYERS, HOURS, TYPICAL_DAYS} >= 0; # Sto_out
 var Power_nuclear  >=0; # [GW] P_Nuc: Constant load of nuclear
 
 ####### New variables for buying quantity to other country, and total costs for buying and selling layers to other country
-var Q_buy{LAYERS, HOURS, TYPICAL_DAYS} >= 0;
-var C_buy{LAYERS} >= 0;  #[Meuros] : total cost of buying layers to other country
-var C_sell {LAYERS} >= 0;
+var Q_buy{LAYERS, HOURS, TYPICAL_DAYS} >= 0; #quantity of a layer to be bought to the other country
+var C_buy{LAYERS} >= 0;  #[Meuros] : total cost of buying a layer to other country
+var C_sell {LAYERS} >= 0; #total cost of selling a layer to the other country
 
 
 ##Dependent variables [Table 2.4] :

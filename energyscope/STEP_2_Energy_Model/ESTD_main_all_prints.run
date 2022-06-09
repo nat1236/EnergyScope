@@ -97,6 +97,13 @@ else {
 				printf "%s\t%.6f\t%.6f\n", i, sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t [i, h, td] * t_op [h, td]) , avail [i] >> (PathName & "/resources_breakdown.txt");
 			}
 
+			## Print total costs of buying and selling to txt file.
+			print "--------------SAVING COSTS B&S -----------";
+			printf "%s\t%s\t%s\n", "Layer", "C_buy", "C_sell" > (PathName & "/costs_bands.txt");
+			for {l in LAYERS}{
+				printf "%s\t%.6f\t%.6f\t\n", l, C_buy[l],  C_sell[l] >> (PathName & "/costs_bands.txt");
+			}
+
 
 			## Print GWP breakdown
 			print "--------------SAVING GWP -----------";
@@ -189,6 +196,9 @@ else {
 					printf "%s_Pin\t",j >> (PathName & "/hourly_data/layer_" & l &".txt"); 
 					printf "%s_Pout\t",j >> (PathName & "/hourly_data/layer_" & l &".txt"); 
 				}
+				printf "Q_buy\t" >> (PathName & "/hourly_data/layer_" & l &".txt");
+				printf "q_sell\t" >> (PathName & "/hourly_data/layer_" & l &".txt");
+				printf "Q_buy-q_sell\t" >> (PathName & "/hourly_data/layer_" & l &".txt");
 				printf "END_USE\t" >> (PathName & "/hourly_data/layer_" & l &".txt"); 
 	
 				for {td in TYPICAL_DAYS, h in HOURS}{
@@ -220,6 +230,9 @@ else {
 								printf "%f\t", (Storage_out [j, l, h, td])>> (PathName & "/hourly_data/layer_" & l &".txt"); 
 						}}		
 					}
+					printf "%f\t", Q_buy[l, h, td]  >> (PathName & "/hourly_data/layer_" & l &".txt");
+					printf "%f\t", -q_sell[l, h, td]  >> (PathName & "/hourly_data/layer_" & l &".txt");
+					printf "%f\t", Q_buy[l, h, td]-q_sell[l,h,td]  >> (PathName & "/hourly_data/layer_" & l &".txt");
 					printf "%f\t", -End_uses [l, h, td]  >> (PathName & "/hourly_data/layer_" & l &".txt"); 
 				}
                 ## Printing Q_buy and q_sell
@@ -260,10 +273,25 @@ else {
 			(Storage_out [j, l, h, td] - Storage_in [j, l, h, td]) >> (PathName & "/year_balance.txt");
 				}
 			}
-			printf "\n END_USES_DEMAND \t" >> (PathName & "/year_balance.txt");
+			printf "\n Q_buy \t" >> (PathName & "/year_balance.txt");
 			for {l in LAYERS}{
 				printf " %f\t", sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}
-					End_uses [l, h, td] >> (PathName & "/year_balance.txt");
+					Q_buy[l, h, td] >> (PathName & "/year_balance.txt");
+			}
+			printf "\n q_sell \t" >> (PathName & "/year_balance.txt");
+			for {l in LAYERS}{
+				printf " %f\t", - (sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}
+					q_sell [l, h, td]) >> (PathName & "/year_balance.txt");
+			}
+			printf "\n Q_buy-q_sell \t" >> (PathName & "/year_balance.txt");
+			for {l in LAYERS}{
+				printf " %f\t",  sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}
+					(Q_buy[l,h,td] - q_sell [l, h, td]) >> (PathName & "/year_balance.txt");
+			}
+			printf "\n END_USES_DEMAND \t" >> (PathName & "/year_balance.txt");
+			for {l in LAYERS}{
+				printf " %f\t", - (sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]}
+					End_uses [l, h, td]) >> (PathName & "/year_balance.txt");
 			}
 
 

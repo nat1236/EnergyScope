@@ -250,6 +250,19 @@ def rename_storage_power(s):
     suffix = l[-1]
     return name + ' ' + suffix
 
+def from_td_to_year(ts_td, t_h_td):
+    """Converts time series on TDs to yearly time series
+    Parameters
+    ----------
+    ts_td: pandas.DataFrame
+    Multiindex dataframe of hourly data for each hour of each TD.
+    The index should be of the form (TD_number, hour_of_the_day). for example : marginal_cost, or layer elec (to have good format, use read_layer)
+    t_h_td: pandas.DataFrame : the one of 12TD.dat
+    """
+    td_h = t_h_td.loc[:,['TD_number','H_of_D']]
+    ts_yr = td_h.merge(ts_td, left_on=['TD_number','H_of_D'], right_index=True).sort_index()
+    return ts_yr.drop(columns=['TD_number', 'H_of_D'])
+
 # def from_td_to_year(ts_td, t_h_td):
 #     """Converts time series on TDs to yearly time series
 #
@@ -260,8 +273,6 @@ def rename_storage_power(s):
 #     The index should be of the form (TD_number, hour_of_the_day).
 #
 #     t_h_td: pandas.DataFrame
-#
-#
 #     """
 #     #TODO finish and test
 #     h2_layer = pd.read_csv(ES_folder / 'case_studies' / config_es['case_study'] / 'output' / 'hourly_data' /
