@@ -1,4 +1,4 @@
-{PERIODS},Electricity (%_elec),PV,Wind_onshore,Wind_offshore,Hydro_river,c_buy,c_sell,q_exch
+{PERIODS},Electricity (%_elec),PV,Wind_onshore,Wind_offshore,Hydro_river,c_buy,c_sell,q_sell
 1,9.12E-05,0,0.15775806,0.714385004,0.368087837,0.091196,0.091196,0
 2,7.14E-05,0,0.182757837,0.691529767,0.367839696,0.091196,0.091196,0
 3,5.28E-05,0,0.192561759,0.729854676,0.367610643,0.091196,0.091196,0

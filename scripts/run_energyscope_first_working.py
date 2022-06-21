@@ -21,7 +21,7 @@ if __name__ == '__main__':
     es_path = path / 'energyscope' / 'STEP_2_Energy_Model'
     step1_output = path / 'energyscope' / 'STEP_1_TD_selection' / 'TD_of_days.out'
      # specify the configuration
-    config = {'case_study': 'try_PV_first', # Name of the case study. The outputs will be printed into : config['ES_path']+'\output_'+config['case_study']
+    config = {'case_study': 'same_PV_first', # Name of the case study. The outputs will be printed into : config['ES_path']+'\output_'+config['case_study']
                'printing': True,  # printing the data in ETSD_data.dat file for the optimisation problem
                'printing_td': True,  # printing the time related data in ESTD_12TD.dat for the optimisation problem
                'printing_params' : True,
@@ -78,11 +78,12 @@ if __name__ == '__main__':
 
 
     #Second case run #################################
-    data2 = path / 'Data' / '2050elec'
-    es_path2 = path / 'energyscope' / 'STEP_2_Energy_Model'
-    step1_output2 = path / 'energyscope' / 'STEP_1_TD_selection' / 'TD_of_days.out'
+    path2 = Path(__file__).parents[1]
+    data2 = path2 / 'Data' / '2050elec'
+    es_path2 = path2 / 'energyscope' / 'STEP_2_Energy_Model'
+    step1_output2 = path2 / 'energyscope' / 'STEP_1_TD_selection' / 'TD_of_days.out'
     # specify the configuration
-    config2 = {'case_study': 'try_CCGT_first',
+    config2 = {'case_study': 'same_CCGT_first',
           # Name of the case study. The outputs will be printed into : config['ES_path']+'\output_'+config['case_study']
           'printing': True,  # printing the data in ETSD_data.dat file for the optimisation problem
           'printing_td': True,  # printing the time related data in ESTD_12TD.dat for the optimisaiton problem
@@ -128,114 +129,81 @@ if __name__ == '__main__':
 
     cs = path / 'case_studies' / config['case_study'] / 'output' / 'hourly_data'
     path_dat = path / 'case_studies' / config['case_study']
-    cs2 = path / 'case_studies' / config2['case_study'] / 'output' / 'hourly_data'
+    cs2 = path2 / 'case_studies' / config2['case_study'] / 'output' / 'hourly_data'
     path_dat2 = path / 'case_studies' / config2['case_study']
 
-    # creating data frames to store the mean of marginal costs
-    mc_debut = pd.read_csv(cs / 'mc_scaled.txt', sep='\t', usecols=['Hour', 'TD', 'ELECTRICITY'])
-    marginal_cost = mc_debut.pivot(index='Hour', columns='TD', values='ELECTRICITY')
-    marginal_cost.iloc[:] = 0
 
-    mc2_debut = pd.read_csv(cs2 / 'mc_scaled.txt', sep='\t', usecols=['Hour', 'TD', 'ELECTRICITY'])
-    marginal_cost2 = mc2_debut.pivot(index='Hour', columns='TD', values='ELECTRICITY')
-    marginal_cost2.iloc[:] = 0
-
-
-    for i in range(7):  #pour l'instant 5 itérations
+    for i in range(12):  #pour l'instant 5 itérations
 
         mc = pd.read_csv(cs / 'mc_scaled.txt', sep='\t', usecols=['Hour', 'TD', 'ELECTRICITY'])
         pivot_mc = mc.pivot(index='Hour', columns='TD', values='ELECTRICITY')
-        Qexch = outputs['var_Q_exch'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
-        cexch = pd.read_csv(path_dat / 'ESTD_cexch.dat', sep='\t', skiprows=1, index_col=0)
-        # qexch = pd.read_csv(path_dat / 'ESTD_qexch.dat', sep='\t', skiprows=1, index_col=0)
-        # Qbuy = outputs['var_Q_buy'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
-        # cbuy = pd.read_csv(path_dat / 'ESTD_cbuy.dat', sep='\t', skiprows=1, index_col=0)
-        # csell = pd.read_csv(path_dat / 'ESTD_csell.dat', sep='\t', skiprows=1, index_col=0)
-        # qsell = pd.read_csv(path_dat / 'ESTD_qsell.dat', sep='\t', skiprows=1, index_col=0)
+        Qbuy = outputs['var_Q_buy'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
+        cbuy = pd.read_csv(path_dat / 'ESTD_cbuy.dat', sep='\t', skiprows=1, index_col=0)
+        csell = pd.read_csv(path_dat / 'ESTD_csell.dat', sep='\t', skiprows=1, index_col=0)
+        qsell = pd.read_csv(path_dat / 'ESTD_qsell.dat', sep='\t', skiprows=1, index_col=0)
 
         mc2 = pd.read_csv(cs2 / 'mc_scaled.txt', sep='\t', usecols=['Hour', 'TD', 'ELECTRICITY'])
         pivot_mc2 = mc2.pivot(index='Hour', columns='TD', values='ELECTRICITY')
-        Qexch2 = outputs2['var_Q_exch'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
-        cexch2 = pd.read_csv(path_dat2 / 'ESTD_cexch.dat', sep='\t', skiprows=1, index_col=0)
-        # qexch2 = pd.read_csv(path_dat2 / 'ESTD_qexch.dat', sep='\t', skiprows=1, index_col=0)
-        # cbuy2 = pd.read_csv(path_dat2 / 'ESTD_cbuy.dat', sep='\t', skiprows=1, index_col=0)
-        # csell2 = pd.read_csv(path_dat2 / 'ESTD_csell.dat', sep='\t', skiprows=1, index_col=0)
-        # qsell2 = pd.read_csv(path_dat2 / 'ESTD_qsell.dat', sep='\t', skiprows=1, index_col=0)
-        # Qbuy2 = outputs2['var_Q_buy'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
+        cbuy2 = pd.read_csv(path_dat2 / 'ESTD_cbuy.dat', sep='\t', skiprows=1, index_col=0)
+        csell2 = pd.read_csv(path_dat2 / 'ESTD_csell.dat', sep='\t', skiprows=1, index_col=0)
+        qsell2 = pd.read_csv(path_dat2 / 'ESTD_qsell.dat', sep='\t', skiprows=1, index_col=0)
+        Qbuy2 = outputs2['var_Q_buy'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
 
-        config['case_study'] = 'try_PV_' + str(i)
+        config['case_study'] = 'same_PV_' + str(i)
         es.print_data(config)
+        cs = path / 'case_studies' / config['case_study'] / 'output' / 'hourly_data'
         path_dat = path / 'case_studies' / config['case_study']
-        cs = path_dat / 'output' / 'hourly_data'
 
-        config2['case_study'] = 'try_CCGT_' + str(i)
+        config2['case_study'] = 'same_CCGT_' + str(i)
         # config2['printing_params'] = False
         es.print_data(config2)
+        cs2 = path2 / 'case_studies' / config2['case_study'] / 'output' / 'hourly_data'
         path_dat2 = path / 'case_studies' / config2['case_study']
-        cs2 = path_dat2 / 'output' / 'hourly_data'
-
-        # updating the mean of marginal costs
-        marginal_cost.iloc[:] = (i / (i + 1)) * marginal_cost.iloc[:] + (1 / (i + 1)) * pivot_mc  # stockage de la moyenne
-        marginal_cost2.iloc[:] = (i / (i + 1)) * marginal_cost2.iloc[:] + (1 / (i + 1)) * pivot_mc2
 
         # EXCHANGE PART
-        cexch = marginal_cost2
-        with open(path_dat / 'ESTD_cexch.dat', mode='w', newline='') as td_file:
-            td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
-            td_writer.writerow(['param c_exch:='])
-        cexch = es.ampl_syntax(cexch, ' ')
-        s = '["' + 'ELECTRICITY' + '",*,*]:'
-        cexch.to_csv(path_dat / 'ESTD_cexch.dat', sep='\t', mode='a', header=True, index=True, index_label=s,quoting=csv.QUOTE_NONE)
-
-        cexch2 = marginal_cost
-        with open(path_dat2 / 'ESTD_cexch.dat', mode='w', newline='') as td_file:
-            td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
-            td_writer.writerow(['param c_exch:='])
-        cexch2 = es.ampl_syntax(cexch2, ' ')
-        cexch2.to_csv(path_dat2 / 'ESTD_cexch.dat', sep='\t', mode='a', header=True, index=True, index_label=s,quoting=csv.QUOTE_NONE)
         # #Exchanging cbuy and writing it in the good file to use it afterwards
-        # cbuy = marginal_cost2
-        # with open(path_dat / 'ESTD_cbuy.dat', mode='w', newline='') as td_file:
-        #     td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
-        #     td_writer.writerow(['param c_buy:='])
-        # cbuy = es.ampl_syntax(cbuy, ' ')
-        # s = '["' + 'ELECTRICITY' + '",*,*]:'
-        # cbuy.to_csv(path_dat / 'ESTD_cbuy.dat', sep='\t', mode='a', header=True, index=True, index_label=s, quoting=csv.QUOTE_NONE)
+        cbuy = pivot_mc2
+        with open(path_dat / 'ESTD_cbuy.dat', mode='w', newline='') as td_file:
+            td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
+            td_writer.writerow(['param c_buy:='])
+        cbuy = es.ampl_syntax(cbuy, ' ')
+        s = '["' + 'ELECTRICITY' + '",*,*]:'
+        cbuy.to_csv(path_dat / 'ESTD_cbuy.dat', sep='\t', mode='a', header=True, index=True, index_label=s, quoting=csv.QUOTE_NONE)
         # #Doing the same for csell
-        # csell = marginal_cost   #de base, juste pivot_mc
-        # with open(path_dat / 'ESTD_csell.dat', mode='w', newline='') as td_file:
-        #     td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
-        #     td_writer.writerow(['param c_sell:='])
-        # csell = es.ampl_syntax(csell, ' ')
-        # csell.to_csv(path_dat / 'ESTD_csell.dat', sep='\t', mode='a', header=True, index=True, index_label=s, quoting=csv.QUOTE_NONE)
-        # # #Doing the same for qsell
-        # qsell = Qbuy2
-        # with open(path_dat / 'ESTD_qsell.dat', mode='w', newline='') as td_file:
-        #     td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
-        #     td_writer.writerow(['param q_sell:='])
-        # qsell = es.ampl_syntax(qsell, ' ')
-        # qsell.to_csv(path_dat / 'ESTD_qsell.dat', sep='\t', mode='a', header=True, index=True, index_label=s, quoting=csv.QUOTE_NONE)
+        csell = pivot_mc   #de base, juste pivot_mc
+        with open(path_dat / 'ESTD_csell.dat', mode='w', newline='') as td_file:
+            td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
+            td_writer.writerow(['param c_sell:='])
+        csell = es.ampl_syntax(csell, ' ')
+        csell.to_csv(path_dat / 'ESTD_csell.dat', sep='\t', mode='a', header=True, index=True, index_label=s, quoting=csv.QUOTE_NONE)
+        # #Doing the same for qsell
+        qsell = Qbuy2
+        with open(path_dat / 'ESTD_qsell.dat', mode='w', newline='') as td_file:
+            td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
+            td_writer.writerow(['param q_sell:='])
+        qsell = es.ampl_syntax(qsell, ' ')
+        qsell.to_csv(path_dat / 'ESTD_qsell.dat', sep='\t', mode='a', header=True, index=True, index_label=s, quoting=csv.QUOTE_NONE)
         # #Doing the same for cbuy2
-        # cbuy2 = marginal_cost
-        # with open(path_dat2 / 'ESTD_cbuy.dat', mode='w', newline='') as td_file:
-        #     td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
-        #     td_writer.writerow(['param c_buy:='])
-        # cbuy2 = es.ampl_syntax(cbuy2, ' ')
-        # cbuy2.to_csv(path_dat2 / 'ESTD_cbuy.dat', sep='\t', mode='a', header=True, index=True, index_label=s, quoting=csv.QUOTE_NONE)
+        cbuy2 = pivot_mc
+        with open(path_dat2 / 'ESTD_cbuy.dat', mode='w', newline='') as td_file:
+            td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
+            td_writer.writerow(['param c_buy:='])
+        cbuy2 = es.ampl_syntax(cbuy2, ' ')
+        cbuy2.to_csv(path_dat2 / 'ESTD_cbuy.dat', sep='\t', mode='a', header=True, index=True, index_label=s, quoting=csv.QUOTE_NONE)
         # #Doing the same for csell2
-        # csell2 = marginal_cost2  #de base, juste pivot_mc2
-        # with open(path_dat2 / 'ESTD_csell.dat', mode='w', newline='') as td_file:
-        #     td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
-        #     td_writer.writerow(['param c_sell:='])
-        # csell2 = es.ampl_syntax(csell2, ' ')
-        # csell2.to_csv(path_dat2 / 'ESTD_csell.dat', sep='\t', mode='a', header=True, index=True, index_label=s, quoting=csv.QUOTE_NONE)
-        # # #Doing the same for qsell2
-        # qsell2 = Qbuy
-        # with open(path_dat2 / 'ESTD_qsell.dat', mode='w', newline='') as td_file:
-        #     td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
-        #     td_writer.writerow(['param q_sell:='])
-        # qsell2 = es.ampl_syntax(qsell2, ' ')
-        # qsell2.to_csv(path_dat2 / 'ESTD_qsell.dat', sep='\t', mode='a', header=True, index=True, index_label=s, quoting=csv.QUOTE_NONE)
+        csell2 = pivot_mc2  #de base, juste pivot_mc2
+        with open(path_dat2 / 'ESTD_csell.dat', mode='w', newline='') as td_file:
+            td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
+            td_writer.writerow(['param c_sell:='])
+        csell2 = es.ampl_syntax(csell2, ' ')
+        csell2.to_csv(path_dat2 / 'ESTD_csell.dat', sep='\t', mode='a', header=True, index=True, index_label=s, quoting=csv.QUOTE_NONE)
+        # #Doing the same for qsell2
+        qsell2 = Qbuy
+        with open(path_dat2 / 'ESTD_qsell.dat', mode='w', newline='') as td_file:
+            td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
+            td_writer.writerow(['param q_sell:='])
+        qsell2 = es.ampl_syntax(qsell2, ' ')
+        qsell2.to_csv(path_dat2 / 'ESTD_qsell.dat', sep='\t', mode='a', header=True, index=True, index_label=s, quoting=csv.QUOTE_NONE)
 
         # #Re-running on both cases
 
@@ -274,11 +242,11 @@ if __name__ == '__main__':
 
     #Plots
     dict_elec = es.read_layer(config['case_study'], 'layer_ELECTRICITY')
-    # dict_elecbis = dict_elec.drop(columns=['Q_buy','q_sell'])
+    dict_elec = dict_elec.drop(columns=['Q_buy','q_sell'])
     # es.hourly_plot(dict_elec)
 
     dict_elec2 = es.read_layer(config2['case_study'], 'layer_ELECTRICITY')
-    # dict_elec2 = dict_elec2.drop(columns=['Q_buy','q_sell'])
+    dict_elec2 = dict_elec2.drop(columns=['Q_buy','q_sell'])
     # es.hourly_plot(dict_elec2)
 
     # mc_scaled = es.read_layer(config['case_study'],'mc_scaled')

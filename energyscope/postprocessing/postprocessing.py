@@ -39,8 +39,9 @@ def read_outputs(cs, hourly_data=False, layers=[]):
 
     if hourly_data:
         outputs['energy_stored'] = pd.read_csv(path/'hourly_data'/'energy_stored.txt', sep='\t', index_col=0)
-        outputs['param_q_sell'] = pd.read_csv(path/'hourly_data'/'param_q_sell_ELECTRICITY.txt', sep='\t', usecols = ['TD','Hour','ELECTRICITY'])
-        outputs['var_Q_buy'] = pd.read_csv(path/'hourly_data'/'var_Q_buy_ELECTRICITY.txt', sep='\t', usecols = ['TD','Hour','ELECTRICITY'])
+        outputs['var_Q_exch'] = pd.read_csv(path / 'hourly_data' / 'var_Q_exch_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
+        #outputs['var_Q_buy'] = pd.read_csv(path/'hourly_data'/'var_Q_buy_ELECTRICITY.txt', sep='\t', usecols = ['TD','Hour','ELECTRICITY'])
+        #outputs['param_q_sell'] = pd.read_csv(path / 'hourly_data' / 'param_q_sell_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
         for l in layers:
             outputs[l] = read_layer(cs,l)
 
