@@ -405,7 +405,8 @@ def print_data(config, case = 'deter'):
     # csell_param = {'c_sell': 'ELECTRICITY'}
     # qsell_param = {'q_sell': 'ELECTRICITY'}
     cexch_param = {'c_exch': 'ELECTRICITY'}
-    # qexch_param = {'q_exch': 'ELECTRICITY'}
+    # other_param = {'other_dem': 'ELECTRICITY'}
+    qexp_param = {'q_exp': 'ELECTRICITY'}
     out_path = out_path + '/ESTD_' + str(nbr_td) + 'TD.dat'
     td_of_days = pd.read_csv(step1_out, names=['TD_of_days'])
     td_of_days['day'] = np.arange(1, 366, 1)  # putting the days of the year beside
@@ -687,6 +688,23 @@ def print_data(config, case = 'deter'):
                       quoting=csv.QUOTE_NONE)
             newline(out_path_cexch)
 
+        # out_path_other = out + '/ESTD_other.dat'
+        # # printing param c_sell for ELECTRICITY ONLY
+        # with open(out_path_other, mode='w', newline='') as td_file:
+        #     td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
+        #     # td_writer.writerow([';'])
+        #     td_writer.writerow(['param other_dem:='])
+        # for k in other_param.keys():
+        #     ts = all_td_ts[k]
+        #     ts.columns = np.arange(1, nbr_td + 1)
+        #     ts = ts * norm[k] / norm_td[k]
+        #     ts.fillna(0, inplace=True)
+        #     ts = ampl_syntax(ts, '')
+        #     s = '["' + other_param[k] + '",*,*]:'
+        #     ts.to_csv(out_path_other, sep='\t', mode='a', header=True, index=True, index_label=s,
+        #               quoting=csv.QUOTE_NONE)
+        #     newline(out_path_other)
+
         # out_path_qsell = out + '/ESTD_qsell.dat'
         # # printing param q_exch for ELECTRICITY ONLY
         # with open(out_path_qsell, mode='w', newline='') as td_file:
@@ -704,22 +722,22 @@ def print_data(config, case = 'deter'):
         #               quoting=csv.QUOTE_NONE)
         #     newline(out_path_qsell)
 
-        # out_path_qexch = out + '/ESTD_qexch.dat'
-        # # printing param q_exch for ELECTRICITY ONLY
-        # with open(out_path_qexch, mode='w', newline='') as td_file:
-        #     td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
-        #     # td_writer.writerow([';'])
-        #     td_writer.writerow(['param q_exch:='])
-        # for k in qexch_param.keys():
-        #     ts = all_td_ts[k]
-        #     ts.columns = np.arange(1, nbr_td + 1)
-        #     ts = ts * norm[k] / norm_td[k]
-        #     ts.fillna(0, inplace=True)
-        #     ts = ampl_syntax(ts, '')
-        #     s = '["' + qexch_param[k] + '",*,*]:'
-        #     ts.to_csv(out_path_qexch, sep='\t', mode='a', header=True, index=True, index_label=s,
-        #               quoting=csv.QUOTE_NONE)
-        #     newline(out_path_qexch)
+        out_path_qexp = out + '/ESTD_qexp.dat'
+        # printing param q_exch for ELECTRICITY ONLY
+        with open(out_path_qexp, mode='w', newline='') as td_file:
+            td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
+            # td_writer.writerow([';'])
+            td_writer.writerow(['param q_exp:='])
+        for k in qexp_param.keys():
+            ts = all_td_ts[k]
+            ts.columns = np.arange(1, nbr_td + 1)
+            ts = ts * norm[k] / norm_td[k]
+            ts.fillna(0, inplace=True)
+            ts = ampl_syntax(ts, '')
+            s = '["' + qexp_param[k] + '",*,*]:'
+            ts.to_csv(out_path_qexp, sep='\t', mode='a', header=True, index=True, index_label=s,
+                      quoting=csv.QUOTE_NONE)
+            newline(out_path_qexp)
 
         # printing c_p_t part where 1 ts => more then 1 tech
         #for k in res_mult_params.keys():

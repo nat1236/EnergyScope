@@ -39,9 +39,12 @@ def read_outputs(cs, hourly_data=False, layers=[]):
 
     if hourly_data:
         outputs['energy_stored'] = pd.read_csv(path/'hourly_data'/'energy_stored.txt', sep='\t', index_col=0)
-        outputs['var_Q_exch'] = pd.read_csv(path / 'hourly_data' / 'var_Q_exch_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
-        #outputs['var_Q_buy'] = pd.read_csv(path/'hourly_data'/'var_Q_buy_ELECTRICITY.txt', sep='\t', usecols = ['TD','Hour','ELECTRICITY'])
-        #outputs['param_q_sell'] = pd.read_csv(path / 'hourly_data' / 'param_q_sell_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
+        # outputs['var_Q_exch'] = pd.read_csv(path / 'hourly_data' / 'var_Q_exch_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
+        # outputs['var_END_USES'] = pd.read_csv(path / 'hourly_data' / 'var_END_USES_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
+        # outputs['param_other_dem'] = pd.read_csv(path / 'hourly_data' / 'param_other_dem_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
+        outputs['var_Q_imp'] = pd.read_csv(path / 'hourly_data' / 'var_Q_imp_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
+        # outputs['var_Q_buy'] = pd.read_csv(path/'hourly_data'/'var_Q_buy_ELECTRICITY.txt', sep='\t', usecols = ['TD','Hour','ELECTRICITY'])
+        outputs['param_q_exp'] = pd.read_csv(path / 'hourly_data' / 'param_q_exp_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
         for l in layers:
             outputs[l] = read_layer(cs,l)
 
@@ -50,6 +53,35 @@ def read_outputs(cs, hourly_data=False, layers=[]):
 
 
     return outputs
+
+def compute_lcoe(config):
+    tau = config['user_defined']['i_rate'] * (1 + config['user_defined']['i_rate']) ** (config['all_data']['Technologies'].loc['PV', 'lifetime']) / (((1 + config['user_defined']['i_rate']) ** (config['all_data']['Technologies'].loc['PV', 'lifetime'])) - 1)
+    lcoe = (config['all_data']['Technologies'].loc['PV', 'c_inv'] * tau + config['all_data']['Technologies'].loc['PV', 'c_maint']) / (config['all_data']['Time_series'].loc[:, 'PV'].sum(axis=0))
+    return lcoe
+
+def compute_cost(Qexch, mc,lcoe):
+    cexch = pd.DataFrame(index=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],columns=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+    for i in Qexch.index:
+        for j in Qexch.columns:
+            if Qexch.loc[i,j] > 0 :
+                # cexch.replace(to_replace=cexch[i][j], value=mc[i][j],inplace=True)
+                cexch.loc[i,j] = mc.loc[i,j]
+            else :
+                # cexch.replace(to_replace=cexch[i][j], value=lcoe, inplace=True)
+                cexch.loc[i,j] = lcoe
+    return cexch
+
+def which_cost(Qimp, mc, mc2):
+    ind = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+    col = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    cexch = pd.DataFrame(index=ind,columns=col)
+    for i in Qimp.index:
+        for j in Qimp.columns:
+            if Qimp.loc[i,j] > 0 :
+                cexch.loc[i,j] = mc2.loc[i,j]
+            elif Qimp.loc[i,j] == 0: #qexp.iloc[i-1,j-1] >= 0:
+                cexch.iloc[i-1,j-1] = mc.loc[i,j]
+    return cexch
 
 def read_layer(cs, layer_name, ext='.txt'):
     """

@@ -96,13 +96,14 @@ param solar_area >= 0; # Maximum land available for PV deployment [km2]
 param power_density_pv >=0 default 0;# Maximum power irradiance for PV.
 param power_density_solar_thermal >=0 default 0;# Maximum power irradiance for solar thermal.
 
-####### New parameters for exchanging cost to other countries
+####### New parameters for buying and selling costs to other countries, and selling quantity
 param c_exch {LAYERS, HOURS, TYPICAL_DAYS} >= 0 default 100000000; #[Meuros/Gwh] default Infinity, cost of exchanging one unit of a layer
 
-param q_exp {LAYERS, HOURS, TYPICAL_DAYS} >= 0 default 0;
+param q_sell {LAYERS, HOURS, TYPICAL_DAYS} default 0, >= 0;
 
 ##Additional parameter (hard coded as '8760' in the thesis)
 param total_time := sum {t in PERIODS, h in HOUR_OF_PERIOD [t], td in TYPICAL_DAY_OF_PERIOD [t]} (t_op [h, td]); # [h]. added just to simplify equations
+
 
 
 #####################################
@@ -116,10 +117,11 @@ var Storage_in {i in STORAGE_TECH, LAYERS, HOURS, TYPICAL_DAYS} >= 0; # Sto_in [
 var Storage_out {i in STORAGE_TECH, LAYERS, HOURS, TYPICAL_DAYS} >= 0; # Sto_out [GW]: Power output from the storage in a certain period
 var Power_nuclear  >=0; # [GW] P_Nuc: Constant load of nuclear
 
-####### New variables for exchanged quantity to other country, and total cost for exchanging a layer to the other country
-var C_exch{LAYERS} >= 0;  #[Meuros] : total cost of buying a layer to other country
+####### New variables for buying quantity to other country, and total costs for buying and selling layers to other country
+var C_buy{LAYERS} >= 0;  #[Meuros] : total cost of buying a layer to other country
+var C_sell{LAYERS} >= 0;
 
-var Q_imp {LAYERS, HOURS, TYPICAL_DAYS} >= 0; #quantity of layer imported from other country at a certain time period #default 0 ? quid signe
+var Q_buy {LAYERS, HOURS, TYPICAL_DAYS} >= 0;
 
 ##Dependent variables [Table 2.4] :
 var End_uses {LAYERS, HOURS, TYPICAL_DAYS} >= 0; #EndUses [GW]: total demand for each type of end-uses (hourly power). Defined for all layers (0 if not demand). [Mpkm] or [Mtkm] for passenger or freight mobility.
@@ -152,9 +154,9 @@ subject to end_uses_t {l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
 ## Cost
 #------
 
-# [Eq. 2.1]     ###### NEW 2 last terms
+# [Eq. 2.1]
 subject to totalcost_cal:
-	TotalCost = sum {j in TECHNOLOGIES} (tau [j]  * C_inv [j] + C_maint [j]) + sum {i in RESOURCES} C_op [i] + sum {l in LAYERS} C_exch[l] ;
+	TotalCost = sum {j in TECHNOLOGIES} (tau [j]  * C_inv [j] + C_maint [j]) + sum {i in RESOURCES} C_op [i] + sum {l in LAYERS} (C_buy[l] - C_sell[l]) ;
 
 # [Eq. 2.3] Investment cost of each technology
 subject to investment_cost_calc {j in TECHNOLOGIES}:
@@ -168,14 +170,12 @@ subject to main_cost_calc {j in TECHNOLOGIES}:
 subject to op_cost_calc {i in RESOURCES}:
 	C_op [i] = sum {t in PERIODS, h in HOUR_OF_PERIOD [t], td in TYPICAL_DAY_OF_PERIOD [t]} (c_op [i] * F_t [i, h, td] * t_op [h, td] ) ;
 
-# Cost of exchanging required quantity of layer
-subject to exch_cost {l in LAYERS} :
-	C_exch[l] = sum {t in PERIODS, h in HOUR_OF_PERIOD [t], td in TYPICAL_DAY_OF_PERIOD [t]} (c_exch[l,h,td] * Q_imp[l,h,td]) ;
+# Cost of buying required quantity of layer
+subject to buying_cost {l in LAYERS} :
+	C_buy[l] = sum {t in PERIODS, h in HOUR_OF_PERIOD [t], td in TYPICAL_DAY_OF_PERIOD [t]} (c_exch[l,h,td] * Q_buy[l,h,td]) ;
 
-#import without export
-subject to import {l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
-	Q_imp[l,h,td] = (if q_exp[l,h,td] > 0 then 0
-		else Q_imp[l,h,td]) ;  #voir documentation AMPL
+subject to selling_cost {l in LAYERS} :
+	C_sell[l] = sum {t in PERIODS, h in HOUR_OF_PERIOD [t], td in TYPICAL_DAY_OF_PERIOD [t]} (c_exch[l,h,td] * q_sell[l,h,td]) ;
 
 ## Emissions
 #-----------
@@ -221,14 +221,15 @@ subject to resource_availability {i in RESOURCES}:
 #--------
 
 # [Eq. 2.13] Layer balance equation with storage. Layers: input > 0, output < 0. Demand > 0. Storage: in > 0, out > 0;
-# output from technologies/resources/storage - input to technologies/storage + exchanged quantity = demand. Demand has default value of 0 for layers which are not end_uses
+# output from technologies/resources/storage - input to technologies/storage = demand. Demand has default value of 0 for layers which are not end_uses
 subject to layer_balance {l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
 		sum {i in RESOURCES union TECHNOLOGIES diff STORAGE_TECH }
 		(layers_in_out[i, l] * F_t [i, h, td])
 		+ sum {j in STORAGE_TECH} ( Storage_out [j, l, h, td] - Storage_in [j, l, h, td] )
 		- End_uses [l, h, td]
-		+ Q_imp[l,h,td]
-		- q_exp[l,h,td]
+		#+ Q_exch[l,h,td]
+		+ Q_buy[l,h,td]
+		- q_sell[l,h,td]
 		= 0;
 
 ## Storage

@@ -99,7 +99,7 @@ param power_density_solar_thermal >=0 default 0;# Maximum power irradiance for s
 ####### New parameters for exchanging cost to other countries
 param c_exch {LAYERS, HOURS, TYPICAL_DAYS} >= 0 default 100000000; #[Meuros/Gwh] default Infinity, cost of exchanging one unit of a layer
 
-param q_exp {LAYERS, HOURS, TYPICAL_DAYS} >= 0 default 0;
+param other_dem {LAYERS, HOURS, TYPICAL_DAYS} default 0;
 
 ##Additional parameter (hard coded as '8760' in the thesis)
 param total_time := sum {t in PERIODS, h in HOUR_OF_PERIOD [t], td in TYPICAL_DAY_OF_PERIOD [t]} (t_op [h, td]); # [h]. added just to simplify equations
@@ -118,8 +118,9 @@ var Power_nuclear  >=0; # [GW] P_Nuc: Constant load of nuclear
 
 ####### New variables for exchanged quantity to other country, and total cost for exchanging a layer to the other country
 var C_exch{LAYERS} >= 0;  #[Meuros] : total cost of buying a layer to other country
+var Q_exch {LAYERS, HOURS, TYPICAL_DAYS} default 0; #quantity of a layer exchanged at a certain time period
 
-var Q_imp {LAYERS, HOURS, TYPICAL_DAYS} >= 0; #quantity of layer imported from other country at a certain time period #default 0 ? quid signe
+var Q_imp {LAYERS, HOURS, TYPICAL_DAYS} >= 0; #quantity imported from other country
 
 ##Dependent variables [Table 2.4] :
 var End_uses {LAYERS, HOURS, TYPICAL_DAYS} >= 0; #EndUses [GW]: total demand for each type of end-uses (hourly power). Defined for all layers (0 if not demand). [Mpkm] or [Mtkm] for passenger or freight mobility.
@@ -170,12 +171,7 @@ subject to op_cost_calc {i in RESOURCES}:
 
 # Cost of exchanging required quantity of layer
 subject to exch_cost {l in LAYERS} :
-	C_exch[l] = sum {t in PERIODS, h in HOUR_OF_PERIOD [t], td in TYPICAL_DAY_OF_PERIOD [t]} (c_exch[l,h,td] * Q_imp[l,h,td]) ;
-
-#import without export
-subject to import {l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
-	Q_imp[l,h,td] = (if q_exp[l,h,td] > 0 then 0
-		else Q_imp[l,h,td]) ;  #voir documentation AMPL
+	C_exch[l] = sum {t in PERIODS, h in HOUR_OF_PERIOD [t], td in TYPICAL_DAY_OF_PERIOD [t]} (c_exch[l,h,td] * Q_exch[l,h,td]) ;
 
 ## Emissions
 #-----------
@@ -227,9 +223,9 @@ subject to layer_balance {l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
 		(layers_in_out[i, l] * F_t [i, h, td])
 		+ sum {j in STORAGE_TECH} ( Storage_out [j, l, h, td] - Storage_in [j, l, h, td] )
 		- End_uses [l, h, td]
-		+ Q_imp[l,h,td]
-		- q_exp[l,h,td]
-		= 0;
+		+ Q_exch[l,h,td]
+		- other_dem[l,h,td]
+		>= 0;
 
 ## Storage
 #---------
