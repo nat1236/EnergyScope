@@ -174,7 +174,7 @@ subject to op_cost_calc {i in RESOURCES}:
 subject to exch_cost {l in LAYERS} :
 	C_exch[l] = sum {t in PERIODS, h in HOUR_OF_PERIOD [t], td in TYPICAL_DAY_OF_PERIOD [t]} (c_exch[l,h,td] * Q_imp[l,h,td]) ;
 
-#import not possible while export
+#import without export
 subject to import {l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
 	Q_imp[l,h,td] = (if q_exp[l,h,td] > 0 then 0
 		else Q_imp[l,h,td]) ;

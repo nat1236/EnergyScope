@@ -74,6 +74,8 @@ param fmax_perc {TECHNOLOGIES} >= 0, <= 1 default 1; # value in [0,1]: this is t
 param fmin_perc {TECHNOLOGIES} >= 0, <= 1 default 0; # value in [0,1]: this is to fix that a technology can at min produce a certain % of the total output of its sector over the entire year
 param avail {RESOURCES} >= 0; # Yearly availability of resources [GWh/y]
 param c_op {RESOURCES} >= 0; # cost of resources in the different periods [Meuros/GWh]
+#param c_op {RESOURCES,HOURS,TYPICAL_DAYS} >= 0; # cost of resources in the different periods [Meuros/GWh]
+
 param peak_sh_factor >= 0;   # %_Peak_sh [-]: ratio between highest yearly demand and highest TDs demand
 param layers_in_out {RESOURCES union TECHNOLOGIES diff STORAGE_TECH , LAYERS}; # f: input/output Resources/Technologies to Layers. Reference is one unit ([GW] or [Mpkm/h] or [Mtkm/h]) of (main) output of the resource/technology. input to layer (output of technology) > 0.
 param c_inv {TECHNOLOGIES} >= 0; # Specific investment cost [Meuros/GW].[Meuros/GWh] for STORAGE_TECH
@@ -181,6 +183,10 @@ subject to import {l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
 
 #subject to alpha_constraint {l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
 #	Q_imp[l,h,td] <= alpha[l,h,td];
+
+subject to balance_storage {i in STORAGE_TECH, l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
+	Storage_in[i,l,h,td] = (if Storage_out[i,l,h,td] > 0 then 0
+		else Storage_in[i,l,h,td]) ;
 
 ## Emissions
 #-----------
