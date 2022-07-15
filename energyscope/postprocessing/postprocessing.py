@@ -40,11 +40,15 @@ def read_outputs(cs, hourly_data=False, layers=[]):
     if hourly_data:
         outputs['energy_stored'] = pd.read_csv(path/'hourly_data'/'energy_stored.txt', sep='\t', index_col=0)
         # outputs['var_Q_exch'] = pd.read_csv(path / 'hourly_data' / 'var_Q_exch_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
-        # outputs['var_END_USES'] = pd.read_csv(path / 'hourly_data' / 'var_END_USES_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
+        outputs['var_END_USES'] = pd.read_csv(path / 'hourly_data' / 'var_END_USES_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
         # outputs['param_other_dem'] = pd.read_csv(path / 'hourly_data' / 'param_other_dem_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
         outputs['var_Q_imp'] = pd.read_csv(path / 'hourly_data' / 'var_Q_imp_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
-        # outputs['var_Q_buy'] = pd.read_csv(path/'hourly_data'/'var_Q_buy_ELECTRICITY.txt', sep='\t', usecols = ['TD','Hour','ELECTRICITY'])
+        # outputs['var_Q_exch'] = pd.read_csv(path/'hourly_data'/'var_Q_exch_ELECTRICITY.txt', sep='\t', usecols = ['TD','Hour','ELECTRICITY'])
         outputs['param_q_exp'] = pd.read_csv(path / 'hourly_data' / 'param_q_exp_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
+        # outputs['param_alpha'] = pd.read_csv(path / 'hourly_data' / 'param_alpha_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
+        # outputs['cpt_PV'] = pd.read_csv(path / 'hourly_data' / 'cpt_PV.txt', sep='\t',usecols=['TD', 'Hour', 'PV'])
+        outputs['F_PV'] = pd.read_csv(path / 'hourly_data' / 'F_PV.txt',usecols=['PV'])
+        outputs['F_CCGT'] = pd.read_csv(path / 'hourly_data' / 'F_CCGT.txt',usecols=['CCGT'])
         for l in layers:
             outputs[l] = read_layer(cs,l)
 
@@ -77,11 +81,26 @@ def which_cost(Qimp, mc, mc2):
     cexch = pd.DataFrame(index=ind,columns=col)
     for i in Qimp.index:
         for j in Qimp.columns:
-            if Qimp.loc[i,j] > 0 :
+            if Qimp.loc[i,j] > 0 : #importe à l'autre
                 cexch.loc[i,j] = mc2.loc[i,j]
-            elif Qimp.loc[i,j] == 0: #qexp.iloc[i-1,j-1] >= 0:
-                cexch.iloc[i-1,j-1] = mc.loc[i,j]
+            else : #elif Qimp.loc[i,j] == 0: #qexp.iloc[i-1,j-1] >= 0:
+                cexch.iloc[i-1,j-1] = mc.loc[i,j] #[i-1,j-1
     return cexch
+
+def check_mc(mc):
+    # mc = [0 for x in mc if abs(x) < 1e-3]
+    for i in mc.index:
+        for j in mc.columns:
+            if abs(mc.loc[i,j]) < 1e-3:
+                mc.loc[i,j] = 0
+    return mc
+
+def check_alpha(alpha):
+    for i in alpha.index:
+        for j in alpha.columns:
+            if alpha.loc[i,j] < 0:
+                alpha.loc[i,j] = 0
+    return alpha
 
 def read_layer(cs, layer_name, ext='.txt'):
     """
