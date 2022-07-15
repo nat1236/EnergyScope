@@ -407,6 +407,7 @@ def print_data(config, case = 'deter'):
     cexch_param = {'c_exch': 'ELECTRICITY'}
     # other_param = {'other_dem': 'ELECTRICITY'}
     qexp_param = {'q_exp': 'ELECTRICITY'}
+    alpha_param = {'alpha': 'ELECTRICITY'}
     out_path = out_path + '/ESTD_' + str(nbr_td) + 'TD.dat'
     td_of_days = pd.read_csv(step1_out, names=['TD_of_days'])
     td_of_days['day'] = np.arange(1, 366, 1)  # putting the days of the year beside
@@ -638,38 +639,6 @@ def print_data(config, case = 'deter'):
     if config['printing_params']:
 
         out = cs + config['case_study']
-        # out_path_cbuy = out + '/ESTD_cbuy.dat'
-        # # printing param c_exch for ELECTRICITY ONLY
-        # with open(out_path_cbuy, mode='w', newline='') as td_file:
-        #     td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
-        #     # td_writer.writerow([';'])
-        #     td_writer.writerow(['param c_buy:='])
-        # for k in cbuy_param.keys():
-        #     ts = all_td_ts[k]
-        #     ts.columns = np.arange(1, nbr_td + 1)
-        #     ts = ts * norm[k] / norm_td[k]
-        #     ts.fillna(0, inplace=True)
-        #     ts = ampl_syntax(ts, '')
-        #     s = '["' + cbuy_param[k] + '",*,*]:'
-        #     ts.to_csv(out_path_cbuy, sep='\t', mode='a', header=True, index=True, index_label=s, quoting=csv.QUOTE_NONE)
-        #     newline(out_path_cbuy)
-
-        # out_path_csell = out + '/ESTD_csell.dat'
-        # # printing param c_sell for ELECTRICITY ONLY
-        # with open(out_path_csell, mode='w', newline='') as td_file:
-        #     td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
-        #     # td_writer.writerow([';'])
-        #     td_writer.writerow(['param c_sell:='])
-        # for k in csell_param.keys():
-        #     ts = all_td_ts[k]
-        #     ts.columns = np.arange(1, nbr_td + 1)
-        #     ts = ts * norm[k] / norm_td[k]
-        #     ts.fillna(0, inplace=True)
-        #     ts = ampl_syntax(ts, '')
-        #     s = '["' + csell_param[k] + '",*,*]:'
-        #     ts.to_csv(out_path_csell, sep='\t', mode='a', header=True, index=True, index_label=s,
-        #               quoting=csv.QUOTE_NONE)
-        #     newline(out_path_csell)
 
         out_path_cexch = out + '/ESTD_cexch.dat'
         # printing param c_sell for ELECTRICITY ONLY
@@ -705,23 +674,6 @@ def print_data(config, case = 'deter'):
         #               quoting=csv.QUOTE_NONE)
         #     newline(out_path_other)
 
-        # out_path_qsell = out + '/ESTD_qsell.dat'
-        # # printing param q_exch for ELECTRICITY ONLY
-        # with open(out_path_qsell, mode='w', newline='') as td_file:
-        #     td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
-        #     # td_writer.writerow([';'])
-        #     td_writer.writerow(['param q_sell:='])
-        # for k in qsell_param.keys():
-        #     ts = all_td_ts[k]
-        #     ts.columns = np.arange(1, nbr_td + 1)
-        #     ts = ts * norm[k] / norm_td[k]
-        #     ts.fillna(0, inplace=True)
-        #     ts = ampl_syntax(ts, '')
-        #     s = '["' + qsell_param[k] + '",*,*]:'
-        #     ts.to_csv(out_path_qsell, sep='\t', mode='a', header=True, index=True, index_label=s,
-        #               quoting=csv.QUOTE_NONE)
-        #     newline(out_path_qsell)
-
         out_path_qexp = out + '/ESTD_qexp.dat'
         # printing param q_exch for ELECTRICITY ONLY
         with open(out_path_qexp, mode='w', newline='') as td_file:
@@ -739,6 +691,23 @@ def print_data(config, case = 'deter'):
                       quoting=csv.QUOTE_NONE)
             newline(out_path_qexp)
 
+        # out_path_alpha = out + '/ESTD_alpha.dat'
+        # # printing param alpha for ELECTRICITY ONLY
+        # with open(out_path_alpha, mode='w', newline='') as td_file:
+        #     td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
+        #     # td_writer.writerow([';'])
+        #     td_writer.writerow(['param alpha:='])
+        # for k in alpha_param.keys():
+        #     ts = all_td_ts[k]
+        #     ts.columns = np.arange(1, nbr_td + 1)
+        #     ts = ts * norm[k] / norm_td[k]
+        #     ts.fillna(0, inplace=True)
+        #     ts = ampl_syntax(ts, '')
+        #     s = '["' + alpha_param[k] + '",*,*]:'
+        #     ts.to_csv(out_path_alpha, sep='\t', mode='a', header=True, index=True, index_label=s,
+        #               quoting=csv.QUOTE_NONE)
+        #     newline(out_path_alpha)
+
         # printing c_p_t part where 1 ts => more then 1 tech
         #for k in res_mult_params.keys():
         #    for j in res_mult_params[k]:
@@ -750,206 +719,7 @@ def print_data(config, case = 'deter'):
         #        s = '["' + j + '",*,*]:'
         #        ts.to_csv(out_path, sep='\t', mode='a', header=True, index=True, index_label=s, quoting=csv.QUOTE_NONE)
 
-    # if config['printing_params']:
-    #     out_path = cs + config['case_study']  # config['ES_path']
-    #     step1_out = config['step1_output']
-    #     nbr_td = 12  # TODO add that as an argument
-    #
-    #     logging.info('Printing ESTD_' + str(nbr_td) + 'TD.dat and 3 data files')
-    #
-    #     # DICTIONARIES TO TRANSLATE NAMES INTO AMPL SYNTAX #
-    #     # for parameters of costs of buying and selling and quantity selling
-    #     cbuy_param = {'c_buy': 'ELECTRICITY'}
-    #     csell_param = {'c_sell': 'ELECTRICITY'}
-    #     qsell_param = {'q_sell': 'ELECTRICITY'}
-    #
-    #     # READING OUTPUT OF STEP1 #
-    #     td_of_days2 = pd.read_csv(step1_out, names=['TD_of_days'])
-    #     td_of_days2['day'] = np.arange(1, 366, 1)  # putting the days of the year beside
-    #     # COMPUTING NUMBER OF DAYS REPRESENTED BY EACH TD #
-    #     sorted_td2 = td_of_days2.groupby('TD_of_days').count()
-    #     sorted_td2.rename(columns={'day': '#days'}, inplace=True)
-    #     sorted_td2.reset_index(inplace=True)
-    #     sorted_td2.set_index(np.arange(1, nbr_td + 1), inplace=True)  # adding number of TD as index
-    #     # BUILDING T_H_TD MATRICE #
-    #     # generate T_H_TD
-    #     td_and_hour_array2 = np.ones((24 * 365, 2))
-    #     for i in range(365):
-    #         td_and_hour_array2[i * 24:(i + 1) * 24, 0] = np.arange(1, 25, 1)
-    #         td_and_hour_array2[i * 24:(i + 1) * 24, 1] = td_and_hour_array2[i * 24:(i + 1) * 24, 1] * sorted_td2[
-    #             sorted_td2['TD_of_days'] == td_of_days2.loc[i, 'TD_of_days']].index.values
-    #     t_h_td2 = pd.DataFrame(td_and_hour_array2, index=np.arange(1, 8761, 1), columns=['H_of_D', 'TD_of_day'])
-    #     t_h_td2 = t_h_td2.astype('int64')
-    #     # giving the right syntax
-    #     t_h_td2.reset_index(inplace=True)
-    #     t_h_td2.rename(columns={'index': 'H_of_Y'}, inplace=True)
-    #     t_h_td2['par_g'] = '('
-    #     t_h_td2['par_d'] = ')'
-    #     t_h_td2['comma1'] = ','
-    #     t_h_td2['comma2'] = ','
-    #     # giving the right order to the columns
-    #     t_h_td = t_h_td2[['par_g', 'H_of_Y', 'comma1', 'H_of_D', 'comma2', 'TD_of_day', 'par_d']]
-    #     # COMPUTING THE NORM OVER THE YEAR ##
-    #     norm2 = time_series.sum(axis=0)
-    #     norm2.index.rename('Category', inplace=True)
-    #     norm2.name = 'Norm'
-    #     # BUILDING TD TIMESERIES #
-    #     # creating df with 2 columns : day of the year | hour in the day
-    #     day_and_hour_array2 = np.ones((24 * 365, 2))
-    #     for i in range(365):
-    #         day_and_hour_array2[i * 24:(i + 1) * 24, 0] = day_and_hour_array2[i * 24:(i + 1) * 24, 0] * (i + 1)
-    #         day_and_hour_array2[i * 24:(i + 1) * 24, 1] = np.arange(1, 25, 1)
-    #     day_and_hour2 = pd.DataFrame(day_and_hour_array2, index=np.arange(1, 8761, 1), columns=['D_of_H', 'H_of_D'])
-    #     day_and_hour2 = day_and_hour2.astype('int64')
-    #     time_series2 = time_series.merge(day_and_hour2, left_index=True, right_index=True)
-    #     # selecting time series of TD only
-    #     td_ts2 = time_series2[time_series['D_of_H'].isin(sorted_td2['TD_of_days'])]
-    #     # COMPUTING THE NORM_TD OVER THE YEAR FOR CORRECTION #
-    #     # computing the sum of ts over each TD
-    #     agg_td_ts2 = td_ts2.groupby('D_of_H').sum()
-    #     agg_td_ts2.reset_index(inplace=True)
-    #     agg_td_ts2.set_index(np.arange(1, nbr_td + 1), inplace=True)
-    #     agg_td_ts2.drop(columns=['D_of_H', 'H_of_D'], inplace=True)
-    #     # multiplicating each TD by the number of day it represents
-    #     for c in agg_td_ts2.columns:
-    #         agg_td_ts2[c] = agg_td_ts2[c] * sorted_td2['#days']
-    #     # sum of new ts over the whole year
-    #     norm_td2 = agg_td_ts2.sum()
-    #     # BUILDING THE DF WITH THE TS OF EACH TD FOR EACH CATEGORY #
-    #     # pivoting TD_ts to obtain a (24,Nbr_TD*Nbr_ts*N_c)
-    #     all_td_ts2 = td_ts2.pivot(index='H_of_D', columns='D_of_H')
-    #
-    #     # PRINTING #
-    #     out = cs + config['case_study']
-    #     out_path_cbuy = out + '/ESTD_cbuy.dat'
-    #     # printing param c_buy for ELECTRICITY ONLY
-    #     with open(out_path_cbuy, mode='w', newline='') as td_file:
-    #         td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
-    #         # td_writer.writerow([';'])
-    #         td_writer.writerow(['param c_buy:='])
-    #     for k in cbuy_param.keys():
-    #         ts = all_td_ts2[k]
-    #         ts.columns = np.arange(1, nbr_td + 1)
-    #         ts = ts * norm2[k] / norm_td2[k]
-    #         ts.fillna(0, inplace=True)
-    #         ts = ampl_syntax(ts, '')
-    #         s = '["' + cbuy_param[k] + '",*,*]:'
-    #         ts.to_csv(out_path_cbuy, sep='\t', mode='a', header=True, index=True, index_label=s, quoting=csv.QUOTE_NONE)
-    #         newline(out_path_cbuy)
-    #     out_path_csell = out + '/ESTD_csell.dat'
-    #     # printing param c_sell for ELECTRICITY ONLY
-    #     with open(out_path_csell, mode='w', newline='') as td_file:
-    #         td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
-    #         # td_writer.writerow([';'])
-    #         td_writer.writerow(['param c_sell:='])
-    #     for k in csell_param.keys():
-    #         ts = all_td_ts2[k]
-    #         ts.columns = np.arange(1, nbr_td + 1)
-    #         ts = ts * norm2[k] / norm_td2[k]
-    #         ts.fillna(0, inplace=True)
-    #         ts = ampl_syntax(ts, '')
-    #         s = '["' + csell_param[k] + '",*,*]:'
-    #         ts.to_csv(out_path_csell, sep='\t', mode='a', header=True, index=True, index_label=s,
-    #                   quoting=csv.QUOTE_NONE)
-    #         newline(out_path_csell)
-    #     out_path_qsell = out + '/ESTD_qsell.dat'
-    #     # printing param q_sell for ELECTRICITY ONLY
-    #     with open(out_path_qsell, mode='w', newline='') as td_file:
-    #         td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
-    #         # td_writer.writerow([';'])
-    #         td_writer.writerow(['param q_sell:='])
-    #     for k in qsell_param.keys():
-    #         ts = all_td_ts2[k]
-    #         ts.columns = np.arange(1, nbr_td + 1)
-    #         ts = ts * norm2[k] / norm_td2[k]
-    #         ts.fillna(0, inplace=True)
-    #         ts = ampl_syntax(ts, '')
-    #         s = '["' + qsell_param[k] + '",*,*]:'
-    #         ts.to_csv(out_path_qsell, sep='\t', mode='a', header=True, index=True, index_label=s,
-    #                   quoting=csv.QUOTE_NONE)
-    #         newline(out_path_qsell)
-
     return
-
-# def td_management(config,key) :
-#     two_up = Path(__file__).parents[2]
-#     cs = os.path.join(two_up, 'case_studies/')
-#     out_path = cs + config['case_study']  # config['ES_path']
-#     step1_out = config['step1_output']
-#     nbr_td = 12
-#     import_folders = config['data_dir']
-#     time_series = pd.read_csv(import_folders / 'Time_series.csv', sep=',', header=0, index_col=0)
-#
-#     # READING OUTPUT OF STEP1 #
-#     td_of_days = pd.read_csv(step1_out, names=['TD_of_days'])
-#     td_of_days['day'] = np.arange(1, 366, 1)  # putting the days of the year beside
-#
-#     # COMPUTING NUMBER OF DAYS REPRESENTED BY EACH TD #
-#     sorted_td = td_of_days.groupby('TD_of_days').count()
-#     sorted_td.rename(columns={'day': '#days'}, inplace=True)
-#     sorted_td.reset_index(inplace=True)
-#     sorted_td.set_index(np.arange(1, nbr_td + 1), inplace=True)  # adding number of TD as index
-#
-#     # BUILDING T_H_TD MATRICE #
-#     # generate T_H_TD
-#     td_and_hour_array = np.ones((24 * 365, 2))
-#     for i in range(365):
-#         td_and_hour_array[i * 24:(i + 1) * 24, 0] = np.arange(1, 25, 1)
-#         td_and_hour_array[i * 24:(i + 1) * 24, 1] = td_and_hour_array[i * 24:(i + 1) * 24, 1] * sorted_td[
-#             sorted_td['TD_of_days'] == td_of_days.loc[i, 'TD_of_days']].index.values
-#     t_h_td = pd.DataFrame(td_and_hour_array, index=np.arange(1, 8761, 1), columns=['H_of_D', 'TD_of_day'])
-#     t_h_td = t_h_td.astype('int64')
-#     # giving the right syntax
-#     t_h_td.reset_index(inplace=True)
-#     t_h_td.rename(columns={'index': 'H_of_Y'}, inplace=True)
-#     t_h_td['par_g'] = '('
-#     t_h_td['par_d'] = ')'
-#     t_h_td['comma1'] = ','
-#     t_h_td['comma2'] = ','
-#     # giving the right order to the columns
-#     t_h_td = t_h_td[['par_g', 'H_of_Y', 'comma1', 'H_of_D', 'comma2', 'TD_of_day', 'par_d']]
-#
-#     # COMPUTING THE NORM OVER THE YEAR ##
-#     norm = time_series.sum(axis=0)
-#     norm.index.rename('Category', inplace=True)
-#     norm.name = 'Norm'
-#
-#     # BUILDING TD TIMESERIES #
-#     # creating df with 2 columns : day of the year | hour in the day
-#     day_and_hour_array = np.ones((24 * 365, 2))
-#     for i in range(365):
-#         day_and_hour_array[i * 24:(i + 1) * 24, 0] = day_and_hour_array[i * 24:(i + 1) * 24, 0] * (i + 1)
-#         day_and_hour_array[i * 24:(i + 1) * 24, 1] = np.arange(1, 25, 1)
-#     day_and_hour = pd.DataFrame(day_and_hour_array, index=np.arange(1, 8761, 1), columns=['D_of_H', 'H_of_D'])
-#     day_and_hour = day_and_hour.astype('int64')
-#     time_series = time_series.merge(day_and_hour, left_index=True, right_index=True)
-#
-#     # selecting time series of TD only
-#     td_ts = time_series[time_series['D_of_H'].isin(sorted_td['TD_of_days'])]
-#
-#     # COMPUTING THE NORM_TD OVER THE YEAR FOR CORRECTION #
-#     # computing the sum of ts over each TD
-#     agg_td_ts = td_ts.groupby('D_of_H').sum()
-#     agg_td_ts.reset_index(inplace=True)
-#     agg_td_ts.set_index(np.arange(1, nbr_td + 1), inplace=True)
-#     agg_td_ts.drop(columns=['D_of_H', 'H_of_D'], inplace=True)
-#     # multiplicating each TD by the number of day it represents
-#     for c in agg_td_ts.columns:
-#         agg_td_ts[c] = agg_td_ts[c] * sorted_td['#days']
-#     # sum of new ts over the whole year
-#     norm_td = agg_td_ts.sum()
-#
-#     # BUILDING THE DF WITH THE TS OF EACH TD FOR EACH CATEGORY #
-#     # pivoting TD_ts to obtain a (24,Nbr_TD*Nbr_ts*N_c)
-#     all_td_ts = td_ts.pivot(index='H_of_D', columns='D_of_H')
-#
-#     ts = all_td_ts[key]
-#     ts.columns = np.arange(1, nbr_td + 1)
-#     ts = ts * norm[key] / norm_td[key]
-#     ts.fillna(0, inplace=True)
-#
-#     return ts
-
 
 # Function to run ES from python
 def run_ES(config, case = 'deter'):

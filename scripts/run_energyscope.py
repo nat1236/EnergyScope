@@ -21,7 +21,7 @@ if __name__ == '__main__':
     es_path = path / 'energyscope' / 'STEP_2_Energy_Model'
     step1_output = path / 'energyscope' / 'STEP_1_TD_selection' / 'TD_of_days.out'
      # specify the configuration
-    config = {'case_study': 'new_PV_first', # Name of the case study. The outputs will be printed into : config['ES_path']+'\output_'+config['case_study']
+    config = {'case_study': 'try_PV_first', # Name of the case study. The outputs will be printed into : config['ES_path']+'\output_'+config['case_study']
                'printing': True,  # printing the data in ETSD_data.dat file for the optimisation problem
                'printing_td': True,  # printing the time related data in ESTD_12TD.dat for the optimisation problem
                'printing_params' : True,
@@ -38,28 +38,40 @@ if __name__ == '__main__':
      # Example to change share of public mobility into passenger mobility into 0.5 (ref value here)
      #config['user_defined']['share_mobility_public_max'] = 0.5
 
-    # config['all_data']['Resources'].loc['ELECTRICITY', 'c_op'] = 20
-    config['all_data']['Resources'].loc['ELECTRICITY', 'avail'] = 0# 1000000000000 #0
+    config['all_data']['Resources'].loc['ELECTRICITY', 'c_op'] = 20  # so that they would prefer importing
+    config['all_data']['Resources'].loc['ELECTRICITY', 'avail'] = 1000000000000  # 0
     config['all_data']['Resources'].loc['ELEC_EXPORT', 'avail'] = 0
     config['all_data']['Technologies'].loc['CCGT', 'f_max'] = 0
     config['all_data']['Technologies'].loc['CCGT_AMMONIA', 'f_max'] = 0
     config['all_data']['Technologies'].loc['WIND_ONSHORE', 'f_max'] = 0
     config['all_data']['Technologies'].loc['WIND_OFFSHORE', 'f_max'] = 0
     config['all_data']['Technologies'].loc['HYDRO_RIVER', 'f_max'] = 0
+    # config['all_data']['Technologies'].loc['EFFICIENCY', 'f_max'] = 0
+    # config['all_data']['Technologies'].loc['GRID', 'f_max'] = 0
     config['all_data']['Technologies'].loc['BATT_LI', 'f_max'] = 0
     config['all_data']['Technologies'].loc['PHS', 'f_min'] = 0
     config['all_data']['Technologies'].loc['PHS', 'f_max'] = 0
     es.print_data(config)
     es.run_ES(config)
     es.scale_marginal_cost(config)
-    outputs = es.read_outputs(config['case_study'], hourly_data=True) #layers = ['layer_ELECTRICITY'])
+    outputs = es.read_outputs(config['case_study'], hourly_data=True)
 
     cs = path / 'case_studies' / config['case_study'] / 'output' / 'hourly_data'
     path_dat = path / 'case_studies' / config['case_study']
 
     mc = pd.read_csv(cs / 'mc_scaled.txt', sep='\t', usecols=['Hour', 'TD', 'ELECTRICITY'])
     pivot_mc = mc.pivot(index='Hour', columns='TD', values='ELECTRICITY')
+    pivot_mc = es.check_mc(pivot_mc)
     Qimp = outputs['var_Q_imp'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
+    qexp = pd.read_csv(path_dat / 'ESTD_qexp.dat', sep='\t', skiprows=1, index_col=0)
+
+    # EUD = outputs['var_END_USES'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
+    # F_PV = outputs['F_PV']
+    # alpha = outputs['param_alpha'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
+    # cpt_PV = pd.read_csv(path_dat / 'ESTD_12TD.dat', sep='\t', index_col=0, skiprows=8822, nrows=24)
+    #
+    # alpha = cpt_PV * F_PV.iloc[0, 0] - EUD.values - qexp.values + Qimp.values
+    # alpha = es.check_alpha(alpha)
 
     # config['all_data']['Resources'].loc['ELECTRICITY', 'avail'] = 100000000000
 
@@ -90,7 +102,7 @@ if __name__ == '__main__':
     es_path2 = path / 'energyscope' / 'STEP_2_Energy_Model'
     step1_output2 = path / 'energyscope' / 'STEP_1_TD_selection' / 'TD_of_days.out'
     # specify the configuration
-    config2 = {'case_study': 'new_CCGT_0',# Name of the case study. The outputs will be printed into : config['ES_path']+'\output_'+config['case_study']
+    config2 = {'case_study': 'try_CCGT_0',# Name of the case study. The outputs will be printed into : config['ES_path']+'\output_'+config['case_study']
           'printing': True,  # printing the data in ETSD_data.dat file for the optimisation problem
           'printing_td': True,  # printing the time related data in ESTD_12TD.dat for the optimisaiton problem
           'printing_params': True,
@@ -104,15 +116,16 @@ if __name__ == '__main__':
           'AMPL_path': '/home/natacha/Downloads/ampl_linux-intel64'}  # PATH to AMPL licence (to adapt by the user), set to None if AMPL is in your PATH variables
 
     es.import_data(config2)
-    # config2['all_data']['Resources'].loc['ELECTRICITY', 'avail'] = 0
-    # config2['all_data']['Resources'].loc['ELECTRICITY', 'c_op'] = 5
-    config2['all_data']['Resources'].loc['ELECTRICITY', 'avail'] = 0 #100000000000
+    config2['all_data']['Resources'].loc['ELECTRICITY', 'c_op'] = 20
+    config2['all_data']['Resources'].loc['ELECTRICITY', 'avail'] = 100000000000
     config2['all_data']['Resources'].loc['ELEC_EXPORT', 'avail'] = 0
     config2['all_data']['Technologies'].loc['PV', 'f_max'] = 0
     config2['all_data']['Technologies'].loc['CCGT_AMMONIA', 'f_max'] = 0
     config2['all_data']['Technologies'].loc['WIND_ONSHORE', 'f_max'] = 0
     config2['all_data']['Technologies'].loc['WIND_OFFSHORE', 'f_max'] = 0
     config2['all_data']['Technologies'].loc['HYDRO_RIVER', 'f_max'] = 0
+    # config2['all_data']['Technologies'].loc['EFFICIENCY', 'f_max'] = 0
+    # config2['all_data']['Technologies'].loc['GRID', 'f_max'] = 0
     config2['all_data']['Technologies'].loc['BATT_LI', 'f_max'] = 0
     config2['all_data']['Technologies'].loc['PHS', 'f_min'] = 0
     config2['all_data']['Technologies'].loc['PHS', 'f_max'] = 0
@@ -136,9 +149,19 @@ if __name__ == '__main__':
     qexp2 = es.ampl_syntax(qexp2, ' ')
     qexp2.to_csv(path_dat2 / 'ESTD_qexp.dat', sep='\t', mode='a', header=True, index=True, index_label=s,quoting=csv.QUOTE_NONE)
 
+    # alpha2 = alpha
+    # with open(path_dat2 / 'ESTD_alpha.dat', mode='w', newline='') as td_file:
+    #     td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
+    #     td_writer.writerow(['param alpha:='])
+    # # alpha2 = es.ampl_syntax(alpha2, ' ')
+    # alpha2.to_csv(path_dat2 / 'ESTD_alpha.dat', sep='\t', mode='a', header=True, index=True, index_label=s,quoting=csv.QUOTE_NONE)
+
     es.run_ES(config2)
     es.scale_marginal_cost(config2)
     outputs2 = es.read_outputs(config2['case_study'], hourly_data=True)  # layers = ['layer_ELECTRICITY'])
+
+    # cpt_CCGT = pd.read_csv(path_dat / 'ESTD_12TD.dat', sep='\t', index_col=0, skiprows=8822, nrows=24)
+    # cpt_CCGT.iloc[:] = 1
 
     # #2 different plots
     # mc_scaled2 = es.read_layer(config2['case_study'], 'mc_scaled')
@@ -152,8 +175,6 @@ if __name__ == '__main__':
     # yearly2 = yearly2.loc[:, ['CCGT', 'Q_exch', 'END_USE']]
     # yearly2.plot(title='Yearly layer ELEC')
 
-
-
     # creating data frames to store the mean of marginal costs
     # mc_debut = pd.read_csv(cs / 'mc_scaled.txt', sep='\t', usecols=['Hour', 'TD', 'ELECTRICITY'])
     # marginal_cost = mc_debut.pivot(index='Hour', columns='TD', values='ELECTRICITY')
@@ -163,31 +184,48 @@ if __name__ == '__main__':
     # marginal_cost2 = mc2_debut.pivot(index='Hour', columns='TD', values='ELECTRICITY')
     # marginal_cost2.iloc[:] = 0
 
-    for i in range(1,2):  #pour l'instant 5 itérations
+    for i in range(1,4):  #pour l'instant 5 itérations
 
         mc = pd.read_csv(cs / 'mc_scaled.txt', sep='\t', usecols=['Hour', 'TD', 'ELECTRICITY'])
         pivot_mc = mc.pivot(index='Hour', columns='TD', values='ELECTRICITY')
+        pivot_mc = es.check_mc(pivot_mc)
+        # Qexch = outputs['var_Q_exch'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
         cexch = pd.read_csv(path_dat / 'ESTD_cexch.dat', sep='\t', skiprows=1, index_col=0)
         Qimp = outputs['var_Q_imp'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
         qexp = pd.read_csv(path_dat / 'ESTD_qexp.dat', sep='\t', skiprows=1, index_col=0)
 
         mc2 = pd.read_csv(cs2 / 'mc_scaled.txt', sep='\t', usecols=['Hour', 'TD', 'ELECTRICITY'])
         pivot_mc2 = mc2.pivot(index='Hour', columns='TD', values='ELECTRICITY')
+        pivot_mc2 = es.check_mc(pivot_mc2)
+        # Qexch2 = outputs2['var_Q_exch'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
         cexch2 = pd.read_csv(path_dat2 / 'ESTD_cexch.dat', sep='\t', skiprows=1, index_col=0)
         Qimp2 = outputs2['var_Q_imp'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
         qexp2 = pd.read_csv(path_dat2 / 'ESTD_qexp.dat', sep='\t', skiprows=1, index_col=0)
 
-        # updating the mean of marginal costs
-        # marginal_cost.iloc[:] = (i / (i + 1)) * marginal_cost.iloc[:] + (1 / (i + 1)) * pivot_mc  # stockage de la moyenne
-        # marginal_cost2.iloc[:] = (i / (i + 1)) * marginal_cost2.iloc[:] + (1 / (i + 1)) * pivot_mc2
+        # EUD = outputs['var_END_USES'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
+        # F_PV = outputs['F_PV']
+        # # alpha = outputs['param_alpha'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
+        # cpt_PV = pd.read_csv(path_dat / 'ESTD_12TD.dat', sep='\t', index_col=0, skiprows=8822, nrows=24)
+        #
+        # EUD2 = outputs2['var_END_USES'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
+        # F_CCGT = outputs2['F_CCGT']
+        # # alpha2 = outputs2['param_alpha'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
+        #
+        # alpha = cpt_PV * F_PV.iloc[0, 0] - EUD.values - qexp.values + Qimp.values
+        # alpha = es.check_alpha(alpha)
+        #
+        # alpha2 = cpt_CCGT * F_CCGT.iloc[0, 0] - EUD2.values - qexp2.values + Qimp2.values
+        # alpha2 = es.check_alpha(alpha2)
 
-        if i % 2 == 0 :  #si itération paire
+        s = '["' + 'ELECTRICITY' + '",*,*]:'
+
+        if i == 0 or i % 2 == 0 :  #si itération paire
             config2['case_study'] = 'try_CCGT_' + str(i)
             es.print_data(config2)
             path_dat2 = path / 'case_studies' / config2['case_study']
             cs2 = path_dat2 / 'output' / 'hourly_data'
 
-            cexch2 = es.which_cost(Qimp2,pivot_mc2,pivot_mc) #pivot_mc  # es.compute_cost(Qexch2,pivot_mc,lcoe_pv) #pivot_mc #marginal_cost
+            cexch2 = es.which_cost(Qimp2, pivot_mc2,pivot_mc)  # pivot_mc #marginal_cost
             with open(path_dat2 / 'ESTD_cexch.dat', mode='w', newline='') as td_file:
                 td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
                 td_writer.writerow(['param c_exch:='])
@@ -201,6 +239,13 @@ if __name__ == '__main__':
             qexp2 = es.ampl_syntax(qexp2, ' ')
             qexp2.to_csv(path_dat2 / 'ESTD_qexp.dat', sep='\t', mode='a', header=True, index=True, index_label=s,quoting=csv.QUOTE_NONE)
 
+            # alpha2 = alpha
+            # with open(path_dat2 / 'ESTD_alpha.dat', mode='w', newline='') as td_file:
+            #     td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
+            #     td_writer.writerow(['param alpha:='])
+            # alpha2 = es.ampl_syntax(alpha2, ' ')
+            # alpha2.to_csv(path_dat2 / 'ESTD_alpha.dat', sep='\t', mode='a', header=True, index=True, index_label=s,quoting=csv.QUOTE_NONE)
+
             es.run_ES(config2)
             es.scale_marginal_cost(config2)
             outputs2 = es.read_outputs(config2['case_study'], hourly_data=True)  # layers = ['layer_ELECTRICITY'])
@@ -211,7 +256,7 @@ if __name__ == '__main__':
             path_dat = path / 'case_studies' / config['case_study']
             cs = path_dat / 'output' / 'hourly_data'
 
-            cexch = es.which_cost(Qimp,pivot_mc,pivot_mc2) #pivot_mc2  # es.compute_cost(Qexch,pivot_mc2,lcoe_pv)  #pivot_mc2
+            cexch = es.which_cost(Qimp,pivot_mc, pivot_mc2)  #pivot_mc2
             with open(path_dat / 'ESTD_cexch.dat', mode='w', newline='') as td_file:
                 td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
                 td_writer.writerow(['param c_exch:='])
@@ -224,6 +269,13 @@ if __name__ == '__main__':
                 td_writer.writerow(['param q_exp:='])
             qexp = es.ampl_syntax(qexp, ' ')
             qexp.to_csv(path_dat / 'ESTD_qexp.dat', sep='\t', mode='a', header=True, index=True, index_label=s,quoting=csv.QUOTE_NONE)
+
+            # alpha = alpha2
+            # with open(path_dat / 'ESTD_alpha.dat', mode='w', newline='') as td_file:
+            #     td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
+            #     td_writer.writerow(['param alpha:='])
+            # alpha2 = es.ampl_syntax(alpha2, ' ')
+            # alpha.to_csv(path_dat / 'ESTD_alpha.dat', sep='\t', mode='a', header=True, index=True, index_label=s,quoting=csv.QUOTE_NONE)
 
             es.run_ES(config)
             es.scale_marginal_cost(config)
@@ -286,13 +338,3 @@ if __name__ == '__main__':
     # yearly2 = yearly2.loc[:, yearly2.sum().abs() > 1.0]
     # # yearly2 = yearly2.drop(['Q_buy','q_sell'], axis=1)
     # yearly2.plot()
-
-    # pd.plotting.lag_plot(yearly)
-
-
-    # pd.plotting.autocorrelation_plot(yearly_mc)
-
-    # plt.figure()
-    # heat_map = sns.heatmap(cbuy, linewidth=1, annot=True)
-    # plt.title("HeatMap using Seaborn Method")
-    # plt.show()

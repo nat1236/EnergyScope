@@ -101,7 +101,7 @@ param c_exch {LAYERS, HOURS, TYPICAL_DAYS} >= 0 default 100000000; #[Meuros/Gwh]
 
 param q_exp {LAYERS, HOURS, TYPICAL_DAYS} >= 0 default 0;
 
-#param alpha {LAYERS, HOURS, TYPICAL_DAYS} >= 0 default 1000000; # >= 0
+param alpha {LAYERS, HOURS, TYPICAL_DAYS} >= 0 default 1000000; # >= 0
 
 ##Additional parameter (hard coded as '8760' in the thesis)
 param total_time := sum {t in PERIODS, h in HOUR_OF_PERIOD [t], td in TYPICAL_DAY_OF_PERIOD [t]} (t_op [h, td]); # [h]. added just to simplify equations
@@ -179,8 +179,8 @@ subject to import {l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
 	Q_imp[l,h,td] = (if q_exp[l,h,td] > 0 then 0
 		else Q_imp[l,h,td]) ;
 
-#subject to alpha_constraint {l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
-#	Q_imp[l,h,td] <= alpha[l,h,td];
+subject to alpha_constraint {l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
+	Q_imp[l,h,td] <= alpha[l,h,td];
 
 ## Emissions
 #-----------
