@@ -69,8 +69,18 @@ if __name__ == '__main__':
 
     EUD = outputs['var_END_USES'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
     F_PV = outputs['F_PV']
+    # alpha = outputs['param_alpha'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
     cpt_PV = pd.read_csv(path_dat / 'ESTD_12TD.dat', sep='\t', index_col=0, skiprows=8822, nrows=24)
-
+    #
+    # Sto_in_PHS = pd.read_csv(cs / 'layer_ELECTRICITY.txt',sep='\t', usecols=[' Time', 'Td ', 'PHS_Pin'])
+    # Sto_in_PHS = Sto_in_PHS.pivot(index=' Time', columns='Td ', values='PHS_Pin')
+    # Sto_in_BATT = pd.read_csv(cs / 'layer_ELECTRICITY.txt', sep='\t', usecols=[' Time', 'Td ', 'BATT_LI_Pin'])
+    # Sto_in_BATT = Sto_in_BATT.pivot(index=' Time', columns='Td ', values='BATT_LI_Pin')
+    # Sto_out_PHS = pd.read_csv(cs / 'layer_ELECTRICITY.txt', sep='\t', usecols=[' Time', 'Td ', 'PHS_Pout'])
+    # Sto_out_PHS = Sto_out_PHS.pivot(index=' Time', columns='Td ', values='PHS_Pout')
+    # Sto_out_BATT = pd.read_csv(cs / 'layer_ELECTRICITY.txt', sep='\t', usecols=[' Time', 'Td ', 'BATT_LI_Pout'])
+    # Sto_out_BATT = Sto_out_BATT.pivot(index=' Time', columns='Td ', values='BATT_LI_Pout')
+    #
     alpha = cpt_PV * F_PV.iloc[0, 0] - EUD.values #- qexp.values + Qimp.values #+ Sto_out_PHS.values + Sto_out_BATT.values + Sto_in_PHS.values + Sto_in_BATT.values
     alpha = es.check_alpha(alpha)
 
@@ -222,6 +232,7 @@ if __name__ == '__main__':
         mc = pd.read_csv(cs / 'mc_scaled.txt', sep='\t', usecols=['Hour', 'TD', 'ELECTRICITY'])
         pivot_mc = mc.pivot(index='Hour', columns='TD', values='ELECTRICITY')
         pivot_mc = es.check_mc(pivot_mc)
+        # Qexch = outputs['var_Q_exch'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
         cimp = pd.read_csv(path_dat / 'ESTD_cimp.dat', sep='\t', skiprows=1, index_col=0)
         Qimp = outputs['var_Q_imp'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
         qexp = pd.read_csv(path_dat / 'ESTD_qexp.dat', sep='\t', skiprows=1, index_col=0)
@@ -229,17 +240,44 @@ if __name__ == '__main__':
         mc2 = pd.read_csv(cs2 / 'mc_scaled.txt', sep='\t', usecols=['Hour', 'TD', 'ELECTRICITY'])
         pivot_mc2 = mc2.pivot(index='Hour', columns='TD', values='ELECTRICITY')
         pivot_mc2 = es.check_mc(pivot_mc2)
+        # Qexch2 = outputs2['var_Q_exch'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
         cimp2 = pd.read_csv(path_dat2 / 'ESTD_cimp.dat', sep='\t', skiprows=1, index_col=0)
         Qimp2 = outputs2['var_Q_imp'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
         qexp2 = pd.read_csv(path_dat2 / 'ESTD_qexp.dat', sep='\t', skiprows=1, index_col=0)
 
         EUD = outputs['var_END_USES'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
         F_PV = outputs['F_PV']
+        # alpha = outputs['param_alpha'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
         cpt_PV = pd.read_csv(path_dat / 'ESTD_12TD.dat', sep='\t', index_col=0, skiprows=8822, nrows=24)
-
+        # Sto_in_PHS = pd.read_csv(cs / 'layer_ELECTRICITY.txt', sep='\t', usecols=[' Time', 'Td ', 'PHS_Pin'])
+        # Sto_in_PHS = Sto_in_PHS.pivot(index=' Time', columns='Td ', values='PHS_Pin')
+        # Sto_in_PHS = es.check_nan(Sto_in_PHS)
+        # Sto_in_BATT = pd.read_csv(cs / 'layer_ELECTRICITY.txt', sep='\t', usecols=[' Time', 'Td ', 'BATT_LI_Pin'])
+        # Sto_in_BATT = Sto_in_BATT.pivot(index=' Time', columns='Td ', values='BATT_LI_Pin')
+        # Sto_in_BATT = es.check_nan(Sto_in_BATT)
+        # Sto_out_PHS = pd.read_csv(cs / 'layer_ELECTRICITY.txt', sep='\t', usecols=[' Time', 'Td ', 'PHS_Pout'])
+        # Sto_out_PHS = Sto_out_PHS.pivot(index=' Time', columns='Td ', values='PHS_Pout')
+        # Sto_out_PHS = es.check_nan(Sto_out_PHS)
+        # Sto_out_BATT = pd.read_csv(cs / 'layer_ELECTRICITY.txt', sep='\t', usecols=[' Time', 'Td ', 'BATT_LI_Pout'])
+        # Sto_out_BATT = Sto_out_BATT.pivot(index=' Time', columns='Td ', values='BATT_LI_Pout')
+        # Sto_out_BATT = es.check_nan(Sto_out_BATT)
+        #
         EUD2 = outputs2['var_END_USES'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
         F_CCGT = outputs2['F_CCGT']
-
+        # Sto_in_PHS2 = pd.read_csv(cs2 / 'layer_ELECTRICITY.txt', sep='\t', usecols=[' Time', 'Td ', 'PHS_Pin'])
+        # Sto_in_PHS2 = Sto_in_PHS2.pivot(index=' Time', columns='Td ', values='PHS_Pin')
+        # Sto_in_PHS2 = es.check_nan(Sto_in_PHS2)
+        # Sto_in_BATT2 = pd.read_csv(cs2 / 'layer_ELECTRICITY.txt', sep='\t', usecols=[' Time', 'Td ', 'BATT_LI_Pin'])
+        # Sto_in_BATT2 = Sto_in_BATT2.pivot(index=' Time', columns='Td ', values='BATT_LI_Pin')
+        # Sto_in_BATT2 = es.check_nan(Sto_in_BATT2)
+        # Sto_out_PHS2 = pd.read_csv(cs2 / 'layer_ELECTRICITY.txt', sep='\t', usecols=[' Time', 'Td ', 'PHS_Pout'])
+        # Sto_out_PHS2 = Sto_out_PHS2.pivot(index=' Time', columns='Td ', values='PHS_Pout')
+        # Sto_out_PHS2 = es.check_nan(Sto_out_PHS2)
+        # Sto_out_BATT2 = pd.read_csv(cs2 / 'layer_ELECTRICITY.txt', sep='\t', usecols=[' Time', 'Td ', 'BATT_LI_Pout'])
+        # Sto_out_BATT2 = Sto_out_BATT2.pivot(index=' Time', columns='Td ', values='BATT_LI_Pout')
+        # Sto_out_BATT2 = es.check_nan(Sto_out_BATT2)
+        # # alpha2 = outputs2['param_alpha'].pivot(index='Hour', columns='TD', values='ELECTRICITY')
+        #
         alpha = cpt_PV * F_PV.iloc[0, 0] - EUD.values #- qexp.values + Qimp.values #+ Sto_out_PHS.values + Sto_out_BATT.values + Sto_in_PHS.values + Sto_in_BATT.values
         alpha = es.check_alpha(alpha)
 

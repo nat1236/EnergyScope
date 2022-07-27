@@ -45,7 +45,7 @@ def read_outputs(cs, hourly_data=False, layers=[]):
         outputs['var_Q_imp'] = pd.read_csv(path / 'hourly_data' / 'var_Q_imp_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
         # outputs['var_Q_exch'] = pd.read_csv(path/'hourly_data'/'var_Q_exch_ELECTRICITY.txt', sep='\t', usecols = ['TD','Hour','ELECTRICITY'])
         outputs['param_q_exp'] = pd.read_csv(path / 'hourly_data' / 'param_q_exp_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
-        # outputs['param_alpha'] = pd.read_csv(path / 'hourly_data' / 'param_alpha_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
+        outputs['param_alpha'] = pd.read_csv(path / 'hourly_data' / 'param_alpha_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
         # outputs['cpt_PV'] = pd.read_csv(path / 'hourly_data' / 'cpt_PV.txt', sep='\t',usecols=['TD', 'Hour', 'PV'])
         outputs['F_PV'] = pd.read_csv(path / 'hourly_data' / 'F_PV.txt',usecols=['PV'])
         outputs['F_CCGT'] = pd.read_csv(path / 'hourly_data' / 'F_CCGT.txt',usecols=['CCGT'])
@@ -101,6 +101,14 @@ def check_alpha(alpha):
             if alpha.loc[i,j] < 0:
                 alpha.loc[i,j] = 0
     return alpha
+
+def check_nan(tab):
+    check = tab.isnull()
+    for i in tab.index:
+        for j in tab.columns:
+            if check.iloc[i-1,j-1] :
+                tab.iloc[i-1,j-1] = 0
+    return tab
 
 def read_layer(cs, layer_name, ext='.txt'):
     """

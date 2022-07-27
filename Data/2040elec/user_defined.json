@@ -1,11 +1,11 @@
 {
     "i_rate" : 0.015,
     "re_share_primary" : 0,
-    "solar_area" : 250,
+    "solar_area" : 10000000000000,
 	"power_density_pv" : 0.2367,
     "power_density_solar_thermal" : 0.2857,
     "loss_network" : {"ELECTRICITY": 4.7E-02},
     "c_grid_extra" : 367.8,
-    "import_capacity" : 10.4446667,
+    "import_capacity" : 1000,
     "STORAGE_DAILY" : ["BATT_LI"]
 }

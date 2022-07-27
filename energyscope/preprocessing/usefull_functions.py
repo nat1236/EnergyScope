@@ -404,7 +404,7 @@ def print_data(config, case = 'deter'):
     # cbuy_param = {'c_buy': 'ELECTRICITY'}
     # csell_param = {'c_sell': 'ELECTRICITY'}
     # qsell_param = {'q_sell': 'ELECTRICITY'}
-    cexch_param = {'c_exch': 'ELECTRICITY'}
+    cimp_param = {'c_imp': 'ELECTRICITY'}
     # other_param = {'other_dem': 'ELECTRICITY'}
     qexp_param = {'q_exp': 'ELECTRICITY'}
     alpha_param = {'alpha': 'ELECTRICITY'}
@@ -640,22 +640,22 @@ def print_data(config, case = 'deter'):
 
         out = cs + config['case_study']
 
-        out_path_cexch = out + '/ESTD_cexch.dat'
+        out_path_cimp = out + '/ESTD_cimp.dat'
         # printing param c_sell for ELECTRICITY ONLY
-        with open(out_path_cexch, mode='w', newline='') as td_file:
+        with open(out_path_cimp, mode='w', newline='') as td_file:
             td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
             # td_writer.writerow([';'])
-            td_writer.writerow(['param c_exch:='])
-        for k in cexch_param.keys():
+            td_writer.writerow(['param c_imp:='])
+        for k in cimp_param.keys():
             ts = all_td_ts[k]
             ts.columns = np.arange(1, nbr_td + 1)
             ts = ts * norm[k] / norm_td[k]
             ts.fillna(0, inplace=True)
             ts = ampl_syntax(ts, '')
-            s = '["' + cexch_param[k] + '",*,*]:'
-            ts.to_csv(out_path_cexch, sep='\t', mode='a', header=True, index=True, index_label=s,
+            s = '["' + cimp_param[k] + '",*,*]:'
+            ts.to_csv(out_path_cimp, sep='\t', mode='a', header=True, index=True, index_label=s,
                       quoting=csv.QUOTE_NONE)
-            newline(out_path_cexch)
+            newline(out_path_cimp)
 
         # out_path_other = out + '/ESTD_other.dat'
         # # printing param c_sell for ELECTRICITY ONLY
@@ -675,7 +675,7 @@ def print_data(config, case = 'deter'):
         #     newline(out_path_other)
 
         out_path_qexp = out + '/ESTD_qexp.dat'
-        # printing param q_exch for ELECTRICITY ONLY
+        # printing param q_exp for ELECTRICITY ONLY
         with open(out_path_qexp, mode='w', newline='') as td_file:
             td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
             # td_writer.writerow([';'])
@@ -691,22 +691,22 @@ def print_data(config, case = 'deter'):
                       quoting=csv.QUOTE_NONE)
             newline(out_path_qexp)
 
-        # out_path_alpha = out + '/ESTD_alpha.dat'
-        # # printing param alpha for ELECTRICITY ONLY
-        # with open(out_path_alpha, mode='w', newline='') as td_file:
-        #     td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
-        #     # td_writer.writerow([';'])
-        #     td_writer.writerow(['param alpha:='])
-        # for k in alpha_param.keys():
-        #     ts = all_td_ts[k]
-        #     ts.columns = np.arange(1, nbr_td + 1)
-        #     ts = ts * norm[k] / norm_td[k]
-        #     ts.fillna(0, inplace=True)
-        #     ts = ampl_syntax(ts, '')
-        #     s = '["' + alpha_param[k] + '",*,*]:'
-        #     ts.to_csv(out_path_alpha, sep='\t', mode='a', header=True, index=True, index_label=s,
-        #               quoting=csv.QUOTE_NONE)
-        #     newline(out_path_alpha)
+        out_path_alpha = out + '/ESTD_alpha.dat'
+        # printing param alpha for ELECTRICITY ONLY
+        with open(out_path_alpha, mode='w', newline='') as td_file:
+            td_writer = csv.writer(td_file, delimiter='\t', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
+            # td_writer.writerow([';'])
+            td_writer.writerow(['param alpha:='])
+        for k in alpha_param.keys():
+            ts = all_td_ts[k]
+            ts.columns = np.arange(1, nbr_td + 1)
+            ts = ts * norm[k] / norm_td[k]
+            ts.fillna(0, inplace=True)
+            ts = ampl_syntax(ts, '')
+            s = '["' + alpha_param[k] + '",*,*]:'
+            ts.to_csv(out_path_alpha, sep='\t', mode='a', header=True, index=True, index_label=s,
+                      quoting=csv.QUOTE_NONE)
+            newline(out_path_alpha)
 
         # printing c_p_t part where 1 ts => more then 1 tech
         #for k in res_mult_params.keys():

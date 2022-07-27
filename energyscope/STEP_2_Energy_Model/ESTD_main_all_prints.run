@@ -13,9 +13,9 @@ model ESTD_model.mod;
 # Load standard data
 data ESTD_data.dat ;   # not TDs depending data
 data ESTD_12TD.dat; # TDs depending data
-data ESTD_cexch.dat ;
-data ESTD_qexp.dat ;
-#data ESTD_alpha.dat ;
+data ESTD_cimp.dat;
+data ESTD_qexp.dat;
+data ESTD_alpha.dat;
 #data ESTD_cbuy.dat ;
 #data ESTD_csell.dat ;
 #data ESTD_qsell.dat ;
@@ -102,14 +102,10 @@ else {
 
 			## Print total costs of buying and selling to txt file.
 			print "--------------SAVING COSTS B&S -----------";
-			printf "%s\t%s\n", "Layer", "C_exch" > (PathName & "/cost_exch.txt");
+			printf "%s\t%s\n", "Layer", "C_imp" > (PathName & "/cost_imp.txt");
 			for {l in LAYERS}{
-				printf "%s\t%.6f\t\n", l, C_exch[l] >> (PathName & "/cost_exch.txt");
+				printf "%s\t%.6f\t\n", l, C_imp[l] >> (PathName & "/cost_imp.txt");
 			}
-			#printf "%s\t%s\t%s\n", "Layer", "C_buy", "C_sell" > (PathName & "/cost_exch.txt");
-			#for {l in LAYERS}{
-			#	printf "%s\t%.6f\t%.6f\t\n", l, C_buy[l], C_sell[l] >> (PathName & "/cost_exch.txt");
-			#}
 
 
 			## Print GWP breakdown
@@ -218,7 +214,7 @@ else {
 				#printf "q_sell\t" >> (PathName & "/hourly_data/layer_" & l &".txt");
 				#printf "other_dem\t" >> (PathName & "/hourly_data/layer_" & l &".txt");
 				printf "END_USE\t" >> (PathName & "/hourly_data/layer_" & l &".txt");
-				#printf "alpha\t" >> (PathName & "/hourly_data/layer_" & l &".txt");
+				printf "alpha\t" >> (PathName & "/hourly_data/layer_" & l &".txt");
 	
 				for {td in TYPICAL_DAYS, h in HOURS}{
 					printf "\n %d \t %d\t",td,h   >> (PathName & "/hourly_data/layer_" & l &".txt"); 
@@ -256,7 +252,7 @@ else {
 					#printf "%f\t", Q_buy[l, h, td]  >> (PathName & "/hourly_data/layer_" & l &".txt");
 					#printf "%f\t", - q_sell[l, h, td]  >> (PathName & "/hourly_data/layer_" & l &".txt");
 					printf "%f\t", -End_uses [l, h, td]  >> (PathName & "/hourly_data/layer_" & l &".txt");
-					#printf "%f\t", alpha [l, h, td]  >> (PathName & "/hourly_data/layer_" & l &".txt");
+					printf "%f\t", alpha [l, h, td]  >> (PathName & "/hourly_data/layer_" & l &".txt");
 				}
                 ## Printing Q_exch & Qimp
 				if l = "ELECTRICITY" then {
@@ -266,7 +262,7 @@ else {
 				    printf "%s\t%s\t%s", "TD", "Hour", "ELECTRICITY" > (PathName & "/hourly_data/var_END_USES_" & l &".txt");
 				    printf "%s\t%s\t%s", "TD", "Hour", "ELECTRICITY" > (PathName & "/hourly_data/var_Q_imp_" & l &".txt");
 				    printf "%s\t%s\t%s", "TD", "Hour", "ELECTRICITY" > (PathName & "/hourly_data/param_q_exp_" & l &".txt");
-				    #printf "%s\t%s\t%s", "TD", "Hour", "ELECTRICITY" > (PathName & "/hourly_data/param_alpha_" & l &".txt");
+				    printf "%s\t%s\t%s", "TD", "Hour", "ELECTRICITY" > (PathName & "/hourly_data/param_alpha_" & l &".txt");
 				    #printf "%s\t%s\t%s", "TD", "Hour", "ELECTRICITY" > (PathName & "/hourly_data/param_other_dem_" & l &".txt");
 				    #for {td in TYPICAL_DAYS, h in HOURS} {
 				    #    printf "\n%d\t%d\t",td,h   >> (PathName & "/hourly_data/var_Q_exch_" & l &".txt");
@@ -292,10 +288,10 @@ else {
 				        printf "\n%d\t%d\t",td,h   >> (PathName & "/hourly_data/param_q_exp_" & l &".txt");
 				        printf "%f\t", (q_exp[l,h,td]) >> (PathName & "/hourly_data/param_q_exp_" & l &".txt");
 				    }
-				    #for {td in TYPICAL_DAYS, h in HOURS} {
-				    #    printf "\n%d\t%d\t",td,h   >> (PathName & "/hourly_data/param_alpha_" & l &".txt");
-				    #    printf "%f\t", (alpha[l,h,td]) >> (PathName & "/hourly_data/param_alpha_" & l &".txt");
-				    #}
+				    for {td in TYPICAL_DAYS, h in HOURS} {
+				        printf "\n%d\t%d\t",td,h   >> (PathName & "/hourly_data/param_alpha_" & l &".txt");
+				        printf "%f\t", (alpha[l,h,td]) >> (PathName & "/hourly_data/param_alpha_" & l &".txt");
+				    }
 				}
 
 			} #end of for LAYERS loop

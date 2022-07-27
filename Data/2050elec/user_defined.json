@@ -6,6 +6,6 @@
     "power_density_solar_thermal" : 0.2857,
     "loss_network" : {"ELECTRICITY": 4.7E-02},
     "c_grid_extra" : 367.8,
-    "import_capacity" : 11.894,
+    "import_capacity" : 100,
     "STORAGE_DAILY" : ["BATT_LI"]
 }
