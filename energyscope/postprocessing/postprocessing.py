@@ -25,7 +25,7 @@ def read_outputs(cs, hourly_data=False, layers=[]):
     logging.info('Reading outputs from: '+str(path))
     outputs = dict()
     outputs['assets'] = pd.read_csv(path/'assets.txt', sep="\t", skiprows=[1], index_col=0)
-    outputs['assets'].columns = list(outputs['assets'].columns)[1:]+['']
+    # outputs['assets'].columns = list(outputs['assets'].columns)[1:]+['']
     outputs['assets'].dropna(how='all', axis=1, inplace=True)
     outputs['cost_breakdown'] = pd.read_csv(path/'cost_breakdown.txt', sep='\t', index_col=0)
     outputs['gwp_breakdown'] = pd.read_csv(path/'gwp_breakdown.txt', sep='\t', index_col=0)
@@ -39,16 +39,16 @@ def read_outputs(cs, hourly_data=False, layers=[]):
 
     if hourly_data:
         outputs['energy_stored'] = pd.read_csv(path/'hourly_data'/'energy_stored.txt', sep='\t', index_col=0)
-        # outputs['var_Q_exch'] = pd.read_csv(path / 'hourly_data' / 'var_Q_exch_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
         outputs['var_END_USES'] = pd.read_csv(path / 'hourly_data' / 'var_END_USES_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
-        # outputs['param_other_dem'] = pd.read_csv(path / 'hourly_data' / 'param_other_dem_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
         outputs['var_Q_imp'] = pd.read_csv(path / 'hourly_data' / 'var_Q_imp_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
-        # outputs['var_Q_exch'] = pd.read_csv(path/'hourly_data'/'var_Q_exch_ELECTRICITY.txt', sep='\t', usecols = ['TD','Hour','ELECTRICITY'])
         outputs['param_q_exp'] = pd.read_csv(path / 'hourly_data' / 'param_q_exp_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
         outputs['param_alpha'] = pd.read_csv(path / 'hourly_data' / 'param_alpha_ELECTRICITY.txt', sep='\t',usecols=['TD', 'Hour', 'ELECTRICITY'])
         # outputs['cpt_PV'] = pd.read_csv(path / 'hourly_data' / 'cpt_PV.txt', sep='\t',usecols=['TD', 'Hour', 'PV'])
         outputs['F_PV'] = pd.read_csv(path / 'hourly_data' / 'F_PV.txt',usecols=['PV'])
         outputs['F_CCGT'] = pd.read_csv(path / 'hourly_data' / 'F_CCGT.txt',usecols=['CCGT'])
+        outputs['F_WIND_ONSHORE'] = pd.read_csv(path / 'hourly_data' / 'F_WIND_ONSHORE.txt', usecols=['WIND_ONSHORE'])
+        outputs['F_WIND_OFFSHORE'] = pd.read_csv(path / 'hourly_data' / 'F_WIND_OFFSHORE.txt', usecols=['WIND_OFFSHORE'])
+        outputs['F_HYDRO_RIVER'] = pd.read_csv(path / 'hourly_data' / 'F_HYDRO_RIVER.txt', usecols=['HYDRO_RIVER'])
         for l in layers:
             outputs[l] = read_layer(cs,l)
 
@@ -57,6 +57,14 @@ def read_outputs(cs, hourly_data=False, layers=[]):
 
 
     return outputs
+
+def comp_lcoe_pv(outputs):
+    lcoe = (outputs['cost_breakdown'].loc['PV','C_inv'] + outputs['cost_breakdown'].loc['PV','C_maint']) / outputs['year_balance'].loc['PV', 'ELECTRICITY']
+    return lcoe
+
+def comp_lcoe_ccgt(outputs):
+    lcoe = (outputs['cost_breakdown'].loc['CCGT','C_inv'] + outputs['cost_breakdown'].loc['CCGT','C_maint']) / outputs['year_balance'].loc['CCGT', 'ELECTRICITY']
+    return lcoe
 
 def compute_lcoe(config):
     tau = config['user_defined']['i_rate'] * (1 + config['user_defined']['i_rate']) ** (config['all_data']['Technologies'].loc['PV', 'lifetime']) / (((1 + config['user_defined']['i_rate']) ** (config['all_data']['Technologies'].loc['PV', 'lifetime'])) - 1)
@@ -93,6 +101,23 @@ def check_mc(mc):
         for j in mc.columns:
             if abs(mc.loc[i,j]) < 1e-3:
                 mc.loc[i,j] = 0
+    return mc
+
+def check_mc_weird(mc):
+    # mc = [0 for x in mc if abs(x) < 1e-3]
+    for i in mc.index:
+        for j in mc.columns:
+            if abs(mc.loc[i,j]) < 1e-3:
+                mc.loc[i,j] = 0
+            if mc.loc[i,j] > 1.0 :
+                mc.loc[i,j] = 0
+    return mc
+
+def mc_pv(mc):
+    # mc = [0 for x in mc if abs(x) < 1e-3]
+    for i in mc.index:
+        for j in mc.columns:
+            mc.loc[i,j] = 0.05
     return mc
 
 def check_alpha(alpha):

@@ -123,6 +123,10 @@ var C_exch{LAYERS} >= 0;  #[Meuros] : total cost of buying a layer to other coun
 
 var Q_imp {LAYERS, HOURS, TYPICAL_DAYS} >= 0; #quantity of layer imported from other country at a certain time period #default 0 ? quid signe
 
+#var y_bin {i in STORAGE_TECH, LAYERS, HOURS, TYPICAL_DAYS} binary;
+#var y_in {i in STORAGE_TECH, LAYERS, HOURS, TYPICAL_DAYS} binary;
+#var y_out {i in STORAGE_TECH, LAYERS, HOURS, TYPICAL_DAYS} binary;
+
 ##Dependent variables [Table 2.4] :
 var End_uses {LAYERS, HOURS, TYPICAL_DAYS} >= 0; #EndUses [GW]: total demand for each type of end-uses (hourly power). Defined for all layers (0 if not demand). [Mpkm] or [Mtkm] for passenger or freight mobility.
 var TotalCost >= 0; # C_tot [ktCO2-eq./year]: Total GWP emissions in the system.
@@ -181,6 +185,27 @@ subject to import {l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
 
 subject to alpha_constraint {l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
 	Q_imp[l,h,td] <= alpha[l,h,td];
+
+#subject to balance_storage {i in STORAGE_TECH, l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
+#	Storage_in[i,l,h,td] = (if Storage_out[i,l,h,td] > 0 then 0
+#		else Storage_in[i,l,h,td]) ;
+
+#subject to balance_binary {i in STORAGE_TECH, l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
+#	y_in[i,l,h,td] + y_out[i,l,h,td] = 1;
+
+#subject to max_sto_in_PHS {l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
+#	Storage_in['PHS',l,h,td] <= f_max['PHS'] * y_in['PHS',l,h,td];
+#subject to max_sto_in_BATTLI {l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
+#	Storage_in['BATT_LI',l,h,td] <= 100000000000 * y_in['BATT_LI',l,h,td];
+#subject to max_sto_out_PHS {l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
+#	Storage_out['PHS',l,h,td] <= f_max['PHS'] * y_out['PHS',l,h,td];
+#subject to max_sto_out_BATTLI {l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
+#	Storage_out['BATT_LI',l,h,td] <= 100000000000 * y_out['BATT_LI',l,h,td];
+
+#subject to max_sto_in {i in STORAGE_TECH, l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
+#	Storage_in[i,l,h,td] <= 10000000000000 * y_in[i,l,h,td];
+#subject to max_sto_out {i in STORAGE_TECH, l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
+#	Storage_out[i,l,h,td] <= 10000000000000 * y_out[i,l,h,td];
 
 ## Emissions
 #-----------

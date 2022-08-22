@@ -74,8 +74,6 @@ param fmax_perc {TECHNOLOGIES} >= 0, <= 1 default 1; # value in [0,1]: this is t
 param fmin_perc {TECHNOLOGIES} >= 0, <= 1 default 0; # value in [0,1]: this is to fix that a technology can at min produce a certain % of the total output of its sector over the entire year
 param avail {RESOURCES} >= 0; # Yearly availability of resources [GWh/y]
 param c_op {RESOURCES} >= 0; # cost of resources in the different periods [Meuros/GWh]
-#param c_op {RESOURCES,HOURS,TYPICAL_DAYS} >= 0; # cost of resources in the different periods [Meuros/GWh]
-
 param peak_sh_factor >= 0;   # %_Peak_sh [-]: ratio between highest yearly demand and highest TDs demand
 param layers_in_out {RESOURCES union TECHNOLOGIES diff STORAGE_TECH , LAYERS}; # f: input/output Resources/Technologies to Layers. Reference is one unit ([GW] or [Mpkm/h] or [Mtkm/h]) of (main) output of the resource/technology. input to layer (output of technology) > 0.
 param c_inv {TECHNOLOGIES} >= 0; # Specific investment cost [Meuros/GW].[Meuros/GWh] for STORAGE_TECH
@@ -99,7 +97,7 @@ param power_density_pv >=0 default 0;# Maximum power irradiance for PV.
 param power_density_solar_thermal >=0 default 0;# Maximum power irradiance for solar thermal.
 
 ####### New parameters for exchanging cost to other countries
-param c_imp {LAYERS, HOURS, TYPICAL_DAYS} >= 0 default 100000000; #[Meuros/Gwh] default Infinity, cost of importing one unit of a layer
+param c_imp {LAYERS, HOURS, TYPICAL_DAYS} >= 0 default 100000000; #[Meuros/GWh] default Infinity, cost of importing one unit of a layer
 
 param q_exp {LAYERS, HOURS, TYPICAL_DAYS} >= 0 default 0;
 
@@ -124,10 +122,6 @@ var Power_nuclear  >=0; # [GW] P_Nuc: Constant load of nuclear
 var C_imp{LAYERS} >= 0;  #[Meuros] : total cost of buying a layer to other country
 
 var Q_imp {LAYERS, HOURS, TYPICAL_DAYS} >= 0; #quantity of layer imported from other country at a certain time period #default 0
-
-#var y_bin {i in STORAGE_TECH, LAYERS, HOURS, TYPICAL_DAYS} binary;
-#var y_in {i in STORAGE_TECH, LAYERS, HOURS, TYPICAL_DAYS} binary;
-#var y_out {i in STORAGE_TECH, LAYERS, HOURS, TYPICAL_DAYS} binary;
 
 ##Dependent variables [Table 2.4] :
 var End_uses {LAYERS, HOURS, TYPICAL_DAYS} >= 0; #EndUses [GW]: total demand for each type of end-uses (hourly power). Defined for all layers (0 if not demand). [Mpkm] or [Mtkm] for passenger or freight mobility.
@@ -162,7 +156,7 @@ subject to end_uses_t {l in LAYERS, h in HOURS, td in TYPICAL_DAYS}:
 
 # [Eq. 2.1]     ###### NEW 2 last terms
 subject to totalcost_cal:
-	TotalCost = sum {j in TECHNOLOGIES} (tau [j]  * C_inv [j] + C_maint [j]) + sum {i in RESOURCES} C_op [i] + sum {l in LAYERS} C_imp[l] ;
+	TotalCost = sum {j in TECHNOLOGIES} (tau [j]  * C_inv [j] + C_maint [j]) + sum {i in RESOURCES} C_op [i] + sum {l in LAYERS} C_imp[l];
 
 # [Eq. 2.3] Investment cost of each technology
 subject to investment_cost_calc {j in TECHNOLOGIES}:
@@ -186,28 +180,7 @@ subject to import {l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
 		else Q_imp[l,h,td]) ;
 
 subject to alpha_constraint {l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
-	Q_imp[l,h,td] <= alpha[l,h,td];
-
-#subject to balance_storage {i in STORAGE_TECH, l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
-#	Storage_in[i,l,h,td] = (if Storage_out[i,l,h,td] > 0 then 0
-#		else Storage_in[i,l,h,td]) ;
-
-#subject to balance_binary {i in STORAGE_TECH, l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
-#	y_in[i,l,h,td] + y_out[i,l,h,td] = 1;
-
-#subject to max_sto_in_PHS {l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
-#	Storage_in['PHS',l,h,td] <= f_max['PHS'] * y_in['PHS',l,h,td];
-#subject to max_sto_in_BATTLI {l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
-#	Storage_in['BATT_LI',l,h,td] <= 100000000000 * y_in['BATT_LI',l,h,td];
-#subject to max_sto_out_PHS {l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
-#	Storage_out['PHS',l,h,td] <= f_max['PHS'] * y_out['PHS',l,h,td];
-#subject to max_sto_out_BATTLI {l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
-#	Storage_out['BATT_LI',l,h,td] <= 100000000000 * y_out['BATT_LI',l,h,td];
-
-#subject to max_sto_in {i in STORAGE_TECH, l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
-#	Storage_in[i,l,h,td] <= 10000000000000 * y_in[i,l,h,td];
-#subject to max_sto_out {i in STORAGE_TECH, l in LAYERS, h in HOURS, td in TYPICAL_DAYS} :
-#	Storage_out[i,l,h,td] <= 10000000000000 * y_out[i,l,h,td];
+	Q_imp[l,h,td] <= alpha[l,h,td] ;  #*1.1
 
 
 ## Emissions
